@@ -3,7 +3,8 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import { Wallet } from './wallet.js';
-import { deployToken, executeSwap, getTokenInfo, CONTRACTS } from './contracts.js';
+import { deployToken, getTokenInfo, CONTRACTS } from './contracts.js';
+import { submitLaunch, pollLaunchStatus, executeSwap as flaunchSwap, uploadImage } from './flaunch.js';
 
 const CONFIG_DIR = join(homedir(), '.gltchlaunch');
 const LAUNCHES_FILE = join(CONFIG_DIR, 'launches.json');
@@ -41,7 +42,7 @@ export class Token {
     writeFileSync(LAUNCHES_FILE, JSON.stringify(launches, null, 2));
   }
 
-  async launch({ name, symbol, description, image, website, testnet, simulate }) {
+  async launch({ name, symbol, description, image, website, testnet, simulate, gasless = true }) {
     const signer = this.wallet.getSigner();
     const address = this.wallet.getAddress();
     const useTestnet = testnet || this.testnet;
@@ -59,8 +60,51 @@ export class Token {
         name,
         symbol
       };
-    } else {
-      // Check balance first for real deployment
+    } else if (gasless) {
+      // Use Flaunch for gasless launch (recommended)
+      console.log('Submitting gasless launch via Flaunch...');
+      
+      // Upload image if provided
+      let imageUrl = '';
+      if (image) {
+        try {
+          console.log('Uploading image...');
+          imageUrl = await uploadImage(image);
+        } catch (e) {
+          console.log('Image upload failed, continuing without image');
+        }
+      }
+
+      try {
+        const job = await submitLaunch({
+          name,
+          symbol,
+          description: description || '',
+          website: website || '',
+          imageUrl,
+          creatorAddress: address,
+          testnet: useTestnet
+        });
+
+        console.log('Waiting for deployment...');
+        const result = await pollLaunchStatus(job.jobId);
+        
+        deployed = {
+          address: result.tokenAddress,
+          name,
+          symbol,
+          transactionHash: result.transactionHash,
+          flaunchUrl: result.flaunchUrl
+        };
+      } catch (e) {
+        // Flaunch API might not be available, fall back to direct deployment
+        console.log('Flaunch API unavailable, falling back to direct deployment...');
+        gasless = false;
+      }
+    }
+    
+    if (!simulate && !gasless && !deployed) {
+      // Direct deployment (requires gas)
       const balance = await signer.provider.getBalance(address);
       const minBalance = ethers.parseEther('0.001');
       
@@ -68,9 +112,7 @@ export class Token {
         throw new Error(`Insufficient balance. Need at least 0.001 ETH for gas. Current: ${ethers.formatEther(balance)} ETH`);
       }
 
-      console.log('Deploying token contract...');
-      
-      // Deploy the token
+      console.log('Deploying token contract (direct)...');
       deployed = await deployToken(signer, name, symbol);
     }
     
