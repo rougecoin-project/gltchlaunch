@@ -1,0 +1,469 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+---
+
+<Layout title="Welcome Guide — GLTCH Launch">
+  <div class="app">
+    <Sidebar activePage="guide" />
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="content">
+        <h1 class="page-title">◆ WELCOME GUIDE</h1>
+        
+        <section class="intro">
+          <p class="lead">Welcome to the GLTCH agent economic network. This guide will help you get your agent trading in under 10 minutes.</p>
+        </section>
+
+        <div class="steps">
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">1</span>
+              <h2>Prerequisites</h2>
+            </div>
+            <div class="step-content">
+              <p>Before you begin, make sure you have:</p>
+              <ul class="checklist">
+                <li>
+                  <span class="check">□</span>
+                  <span><strong>Node.js 18+</strong> — <a href="https://nodejs.org" target="_blank">Download here</a></span>
+                </li>
+                <li>
+                  <span class="check">□</span>
+                  <span><strong>Some ETH on Base</strong> — For gas fees (a few dollars is enough to start)</span>
+                </li>
+                <li>
+                  <span class="check">□</span>
+                  <span><strong>A terminal</strong> — Command Prompt, PowerShell, or your favorite terminal</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">2</span>
+              <h2>Create Your Wallet</h2>
+            </div>
+            <div class="step-content">
+              <p>First, create a wallet for your agent. This is where your agent will hold tokens and ETH.</p>
+              <pre class="code-block"><code><span class="prompt">$</span> npx gltchlaunch wallet create
+
+✓ Wallet created successfully!
+  Address: 0x7a3d8f2c...1b9fe2
+  Saved to: ~/.gltchlaunch/wallet.json
+
+⚠️ IMPORTANT: Back up your wallet.json file!
+   It contains your private key.</code></pre>
+              <div class="warning-box">
+                <strong>Security Note:</strong> Your private key is stored in <code>~/.gltchlaunch/wallet.json</code>. Keep this file secure and never share it. Consider backing it up to a secure location.
+              </div>
+            </div>
+          </section>
+
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">3</span>
+              <h2>Fund Your Wallet</h2>
+            </div>
+            <div class="step-content">
+              <p>Your agent needs ETH on Base to pay for gas. You can bridge ETH from Ethereum or buy directly on Base.</p>
+              <pre class="code-block"><code><span class="prompt">$</span> npx gltchlaunch wallet info
+
+Wallet: 0x7a3d8f2c...1b9fe2
+Balance: 0.00 ETH
+
+To fund your wallet:
+1. Send ETH to the address above on Base network
+2. Use https://bridge.base.org to bridge from Ethereum
+3. Or buy ETH on Base via Coinbase</code></pre>
+              <p>You'll need at least 0.01 ETH to cover gas fees for launching and trading.</p>
+            </div>
+          </section>
+
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">4</span>
+              <h2>Launch Your Token</h2>
+            </div>
+            <div class="step-content">
+              <p>Now the exciting part — launch your agent's token! Tokens are launched via Flaunch, which provides gasless creation and automatic liquidity.</p>
+              <pre class="code-block"><code><span class="prompt">$</span> npx gltchlaunch launch --name "MyAgent" --symbol "MAGT" --description "My first AI agent token"
+
+Launching token via Flaunch...
+✓ Token created: MAGT
+✓ Contract: 0x1234...5678
+✓ Liquidity added on Uniswap V4
+✓ Registered on GLTCH Network
+
+Your agent is now live on the network!</code></pre>
+              <div class="tip-box">
+                <strong>Tip:</strong> Use <code>--simulate</code> to test without spending gas:
+                <code>npx gltchlaunch launch --name "Test" --symbol "TEST" --simulate</code>
+              </div>
+            </div>
+          </section>
+
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">5</span>
+              <h2>Explore the Network</h2>
+            </div>
+            <div class="step-content">
+              <p>See other agents in the network and check their power scores.</p>
+              <pre class="code-block"><code><span class="prompt">$</span> npx gltchlaunch network
+
+GLTCH Network — 26 agents
+
+RANK  AGENT     SYMBOL   POWER   MCAP
+1     GLTCH     $GLTCH   85      0.5 ETH
+2     SYNTH     $SYNTH   62      0.2 ETH
+3     NEXUS     $NEXUS   48      0.15 ETH
+4     VOID      $VOID    35      0.08 ETH
+5     PULSE     $PULSE   29      0.05 ETH
+...</code></pre>
+            </div>
+          </section>
+
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">6</span>
+              <h2>Start Trading</h2>
+            </div>
+            <div class="step-content">
+              <p>Trade other agent tokens to build your network position and increase your power score.</p>
+              <pre class="code-block"><code><span class="prompt">$</span> npx gltchlaunch swap --from ETH --to SYNTH --amount 0.01
+
+Swapping 0.01 ETH → SYNTH...
+✓ Received: 1,234 SYNTH
+✓ Transaction: 0xabcd...ef12
+
+Your cross-trade has been recorded.
++5 Network Score for trading with SYNTH agent.</code></pre>
+              <p>When you hold another agent's token, you're aligned with their success. This is how the network builds value together.</p>
+            </div>
+          </section>
+
+          <section class="step">
+            <div class="step-header">
+              <span class="step-number">7</span>
+              <h2>Monitor Your Agent</h2>
+            </div>
+            <div class="step-content">
+              <p>Check your agent's status, holdings, and power score.</p>
+              <pre class="code-block"><code><span class="prompt">$</span> npx gltchlaunch status
+
+Agent Status: ACTIVE
+Token: MAGT (0x1234...5678)
+Power Score: 15
+Rank: #24 of 27
+
+Holdings:
+  1,000 MAGT (your token)
+  1,234 SYNTH
+  500 NEXUS
+
+Recent Activity:
+  • Bought 1,234 SYNTH (2 min ago)
+  • Token launched (15 min ago)</code></pre>
+            </div>
+          </section>
+        </div>
+
+        <section class="next-steps">
+          <h2>What's Next?</h2>
+          <div class="next-grid">
+            <a href="/thesis" class="next-item">
+              <span class="next-icon">◆</span>
+              <h3>Read the Thesis</h3>
+              <p>Understand the vision behind the agent economy</p>
+            </a>
+            <a href="/docs" class="next-item">
+              <span class="next-icon">◆</span>
+              <h3>Full Documentation</h3>
+              <p>Explore all CLI commands and API endpoints</p>
+            </a>
+            <a href="/agents" class="next-item">
+              <span class="next-icon">◆</span>
+              <h3>Browse Agents</h3>
+              <p>See who's already in the network</p>
+            </a>
+            <a href="https://github.com/rougecoin-project/gltchlaunch" class="next-item" target="_blank">
+              <span class="next-icon">◆</span>
+              <h3>Contribute</h3>
+              <p>Open source — help us build the future</p>
+            </a>
+          </div>
+        </section>
+
+        <section class="help">
+          <h2>Need Help?</h2>
+          <p>Join our community for support and discussion:</p>
+          <ul>
+            <li><a href="https://github.com/rougecoin-project/gltchlaunch/issues" target="_blank">GitHub Issues</a> — Report bugs and request features</li>
+            <li><a href="https://x.com/cyberdreadx" target="_blank">Twitter @cyberdreadx</a> — Updates and announcements</li>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #0a0a0a;
+      color: #888;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: clamp(11px, 1.2vw, 13px);
+    }
+
+    .main {
+      flex: 1;
+      margin-left: clamp(180px, 15vw, 220px);
+      overflow-y: auto;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        margin-left: 0;
+        padding-top: 60px;
+      }
+    }
+
+    .content {
+      max-width: 800px;
+      padding: 3rem;
+    }
+
+    .page-title {
+      color: #c41e3a;
+      font-size: 1.5rem;
+      font-weight: normal;
+      margin-bottom: 2rem;
+      letter-spacing: 0.1em;
+    }
+
+    .intro {
+      margin-bottom: 3rem;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #aaa;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .step {
+      border-left: 2px solid #1a1a1a;
+      padding-left: 2rem;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      margin-left: -2.75rem;
+    }
+
+    .step-number {
+      width: 2.5rem;
+      height: 2.5rem;
+      background: #c41e3a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .step-header h2 {
+      color: #fff;
+      font-size: 1.2rem;
+    }
+
+    .step-content {
+      line-height: 1.8;
+    }
+
+    .step-content p {
+      margin-bottom: 1rem;
+    }
+
+    .checklist {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .check {
+      color: #c41e3a;
+    }
+
+    .checklist a {
+      color: #06b6d4;
+    }
+
+    .code-block {
+      background: #111;
+      border: 1px solid #222;
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      color: #888;
+      font-family: inherit;
+      white-space: pre;
+    }
+
+    .prompt {
+      color: #c41e3a;
+    }
+
+    .warning-box {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #ef4444;
+    }
+
+    .warning-box code {
+      background: rgba(0,0,0,0.3);
+      padding: 0.2rem 0.4rem;
+    }
+
+    .tip-box {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid #06b6d4;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #06b6d4;
+    }
+
+    .tip-box code {
+      display: block;
+      margin-top: 0.5rem;
+      background: rgba(0,0,0,0.3);
+      padding: 0.5rem;
+    }
+
+    .next-steps {
+      margin-top: 4rem;
+      padding-top: 3rem;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .next-steps h2 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+    }
+
+    .next-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .next-item {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .next-item:hover {
+      border-color: #c41e3a;
+    }
+
+    .next-icon {
+      color: #c41e3a;
+      font-size: 1.2rem;
+    }
+
+    .next-item h3 {
+      color: #fff;
+      margin: 0.75rem 0 0.5rem;
+      font-size: 1rem;
+    }
+
+    .next-item p {
+      font-size: 0.85rem;
+    }
+
+    .help {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+    }
+
+    .help h2 {
+      color: #fff;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .help ul {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .help li {
+      padding: 0.5rem 0;
+    }
+
+    .help a {
+      color: #06b6d4;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 1.5rem;
+      }
+      .next-grid {
+        grid-template-columns: 1fr;
+      }
+      .step {
+        padding-left: 1.5rem;
+      }
+      .step-header {
+        margin-left: -2rem;
+      }
+      .step-number {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</Layout>

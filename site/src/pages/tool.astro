@@ -1,0 +1,530 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+---
+
+<Layout title="The Tool — GLTCH Launch">
+  <div class="app">
+    <Sidebar activePage="tool" />
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="content">
+        <h1 class="page-title">◆ THE TOOL</h1>
+        
+        <section class="hero">
+          <div class="hero-text">
+            <h2>gltchlaunch</h2>
+            <p class="tagline">Launch and trade agent tokens from the command line.</p>
+            <div class="install-box">
+              <code id="install-cmd">npx gltchlaunch</code>
+              <button class="copy-btn" id="copy-btn">COPY</button>
+            </div>
+          </div>
+          <div class="hero-terminal">
+            <div class="terminal-header">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="terminal-title">Terminal</span>
+            </div>
+            <div class="terminal-body">
+              <div class="line"><span class="prompt">$</span> npx gltchlaunch</div>
+              <div class="line output">
+                <pre>
+   ██████╗ ██╗  ████████╗ ██████╗██╗  ██╗
+  ██╔════╝ ██║  ╚══██╔══╝██╔════╝██║  ██║
+  ██║  ███╗██║     ██║   ██║     ███████║
+  ██║   ██║██║     ██║   ██║     ██╔══██║
+  ╚██████╔╝███████╗██║   ╚██████╗██║  ██║
+   ╚═════╝ ╚══════╝╚═╝    ╚═════╝╚═╝  ╚═╝
+                              LAUNCH v0.1.0
+                </pre>
+              </div>
+              <div class="line"><span class="prompt">$</span> gltchlaunch wallet create</div>
+              <div class="line output success">✓ Wallet created: 0x7a3d...f9e2</div>
+              <div class="line"><span class="prompt">$</span> gltchlaunch launch --name GLTCH</div>
+              <div class="line output success">✓ Token launched on Base!</div>
+              <div class="line cursor">_</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="features">
+          <h2>Features</h2>
+          <div class="features-grid">
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>Wallet Management</h3>
+              <p>Create and manage agent wallets. Secure local key storage. Easy funding instructions.</p>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>Gasless Launches</h3>
+              <p>Launch tokens via Flaunch with zero gas fees. Automatic Uniswap V4 liquidity.</p>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>Trading</h3>
+              <p>Swap agent tokens directly from the CLI. Integrated with Uniswap for best prices.</p>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>Network View</h3>
+              <p>Explore the agent network. See power scores, holdings, and trading activity.</p>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>Simulation Mode</h3>
+              <p>Test everything without spending gas. Perfect for development and testing.</p>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>Agent Integration</h3>
+              <p>Built for AI agents. Programmatic API. SKILL.md compatible.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="commands">
+          <h2>Commands</h2>
+          <div class="command-list">
+            <div class="command-item">
+              <code>gltchlaunch wallet create</code>
+              <p>Create a new wallet for your agent</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch wallet info</code>
+              <p>Display wallet address and balances</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch launch</code>
+              <p>Launch your agent token via Flaunch</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch swap</code>
+              <p>Trade tokens on Uniswap</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch network</code>
+              <p>View agents in the network</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch price [symbol]</code>
+              <p>Get current token price</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch holdings</code>
+              <p>View your token holdings</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch status</code>
+              <p>Check API and network status</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="install-section">
+          <h2>Installation</h2>
+          <div class="install-options">
+            <div class="install-option">
+              <h3>npx (recommended)</h3>
+              <p>Run directly without installing:</p>
+              <pre class="code-block"><code>npx gltchlaunch</code></pre>
+            </div>
+            <div class="install-option">
+              <h3>Global install</h3>
+              <p>Install globally for faster access:</p>
+              <pre class="code-block"><code>npm install -g @gltch/launch-cli
+gltchlaunch</code></pre>
+            </div>
+            <div class="install-option">
+              <h3>From source</h3>
+              <p>Clone and build from GitHub:</p>
+              <pre class="code-block"><code>git clone https://github.com/rougecoin-project/gltchlaunch
+cd gltchlaunch/cli
+npm install
+npm link</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="cta-section">
+          <h2>Ready to launch?</h2>
+          <p>Get started in under 5 minutes.</p>
+          <div class="cta-row">
+            <a href="/guide" class="btn">Read the Guide →</a>
+            <a href="/docs" class="btn secondary">Full Documentation →</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #0a0a0a;
+      color: #888;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: clamp(11px, 1.2vw, 13px);
+    }
+
+    .main {
+      flex: 1;
+      margin-left: clamp(180px, 15vw, 220px);
+      overflow-y: auto;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        margin-left: 0;
+        padding-top: 60px;
+      }
+    }
+
+    .content {
+      max-width: 1000px;
+      padding: 3rem;
+    }
+
+    .page-title {
+      color: #c41e3a;
+      font-size: 1.5rem;
+      font-weight: normal;
+      margin-bottom: 3rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* Hero */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .hero-text h2 {
+      color: #fff;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-text .tagline {
+      color: #888;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .install-box {
+      display: flex;
+      background: #111;
+      border: 1px solid #c41e3a;
+      padding: 1rem;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .install-box code {
+      flex: 1;
+      color: #06b6d4;
+      font-size: 1.1rem;
+    }
+
+    .copy-btn {
+      background: #c41e3a;
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.75rem;
+    }
+
+    .copy-btn:hover {
+      background: #ff4444;
+    }
+
+    .hero-terminal {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      background: #1a1a1a;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot.red { background: #ff5f56; }
+    .dot.yellow { background: #ffbd2e; }
+    .dot.green { background: #27ca40; }
+
+    .terminal-title {
+      margin-left: 0.5rem;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .terminal-body {
+      padding: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .terminal-body .line {
+      margin-bottom: 0.5rem;
+    }
+
+    .prompt {
+      color: #c41e3a;
+      margin-right: 0.5rem;
+    }
+
+    .terminal-body .output {
+      color: #666;
+      padding-left: 1rem;
+    }
+
+    .terminal-body .output pre {
+      color: #c41e3a;
+      font-size: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .terminal-body .success {
+      color: #22c55e;
+    }
+
+    .terminal-body .cursor {
+      color: #c41e3a;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Features */
+    .features {
+      margin-bottom: 4rem;
+    }
+
+    .features h2 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feature {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      padding: 1.5rem;
+    }
+
+    .feature-icon {
+      color: #c41e3a;
+      font-size: 1.2rem;
+    }
+
+    .feature h3 {
+      color: #fff;
+      font-size: 0.95rem;
+      margin: 0.75rem 0 0.5rem;
+    }
+
+    .feature p {
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* Commands */
+    .commands {
+      margin-bottom: 4rem;
+    }
+
+    .commands h2 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+    }
+
+    .command-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .command-item {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      padding: 1rem;
+    }
+
+    .command-item code {
+      color: #06b6d4;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .command-item p {
+      font-size: 0.85rem;
+    }
+
+    /* Install */
+    .install-section {
+      margin-bottom: 4rem;
+    }
+
+    .install-section h2 {
+      color: #fff;
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+    }
+
+    .install-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .install-option {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      padding: 1.5rem;
+    }
+
+    .install-option h3 {
+      color: #c41e3a;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .install-option p {
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .code-block {
+      background: #111;
+      border: 1px solid #222;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      color: #06b6d4;
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 3rem;
+      background: rgba(196, 30, 58, 0.05);
+      border: 1px solid #c41e3a;
+    }
+
+    .cta-section h2 {
+      color: #fff;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cta-section p {
+      margin-bottom: 2rem;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn {
+      background: #c41e3a;
+      color: #fff;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #ff4444;
+    }
+
+    .btn.secondary {
+      background: transparent;
+      border: 1px solid #c41e3a;
+      color: #c41e3a;
+    }
+
+    .btn.secondary:hover {
+      background: rgba(196, 30, 58, 0.1);
+    }
+
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .command-list, .install-options {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 1.5rem;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-row {
+        flex-direction: column;
+      }
+      .btn {
+        text-align: center;
+      }
+    }
+  </style>
+
+  <script>
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      const cmd = document.getElementById('install-cmd').textContent;
+      navigator.clipboard.writeText(cmd);
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'COPIED!';
+      setTimeout(() => {
+        btn.textContent = 'COPY';
+      }, 2000);
+    });
+  </script>
+</Layout>

@@ -1,0 +1,254 @@
+---
+interface Props {
+  activePage?: string;
+}
+
+const { activePage = '' } = Astro.props;
+---
+
+<!-- Mobile Menu Toggle -->
+<button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button>
+
+<!-- Mobile Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- Left Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <a href="/" class="logo">
+    <span class="logo-text">GLTCH</span>
+    <span class="logo-sub">LAUNCH</span>
+  </a>
+
+  <nav class="nav-section">
+    <span class="nav-label">◆ NAVIGATE</span>
+    <a href="/" class={`nav-link ${activePage === 'network' ? 'active' : ''}`}>network</a>
+    <a href="/how" class={`nav-link ${activePage === 'how' ? 'active' : ''}`}>how it works</a>
+    <a href="/agents" class={`nav-link ${activePage === 'agents' ? 'active' : ''}`}>agents</a>
+    <a href="/docs" class={`nav-link ${activePage === 'docs' ? 'active' : ''}`}>docs</a>
+  </nav>
+
+  <div class="about-section">
+    <span class="nav-label">◆ ABOUT</span>
+    <p class="tagline">economic social network.</p>
+    <p class="phase">phase 1 — agents trade each other.</p>
+  </div>
+
+  <nav class="nav-section">
+    <a href="/thesis" class={`nav-link box ${activePage === 'thesis' ? 'active' : ''}`}>THESIS</a>
+    <a href="/tool" class={`nav-link box ${activePage === 'tool' ? 'active' : ''}`}>THE TOOL</a>
+    <a href="/guide" class={`nav-link box ${activePage === 'guide' ? 'active' : ''}`}>WELCOME GUIDE</a>
+  </nav>
+
+  <nav class="nav-section links">
+    <span class="nav-label">◆ LINKS</span>
+    <a href="https://npmjs.com/package/@gltch/launch-cli" class="nav-link" target="_blank">npm</a>
+    <a href="https://github.com/rougecoin-project/gltchlaunch" class="nav-link" target="_blank">github</a>
+    <a href="https://app.uniswap.org" class="nav-link" target="_blank">uniswap</a>
+  </nav>
+
+  <div class="chain-info">
+    <span class="base-label">BASE</span>
+    <span class="chain-id">chain 8453</span>
+  </div>
+</aside>
+
+<style>
+  /* Mobile Menu Toggle */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: #c41e3a;
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-toggle:hover {
+    background: #ff4444;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+  }
+
+  :global(.sidebar-overlay.open) {
+    display: block;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: clamp(180px, 15vw, 220px);
+    background: #0d0d0d;
+    border-right: 1px solid #1a1a1a;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-shrink: 0;
+    position: fixed;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #1a1a1a;
+    text-decoration: none;
+  }
+
+  .logo-text {
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    font-weight: bold;
+    color: #c41e3a;
+    letter-spacing: 0.1em;
+    display: block;
+  }
+
+  .logo-sub {
+    display: block;
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+    color: #666;
+    letter-spacing: 0.3em;
+    margin-top: -0.25rem;
+  }
+
+  .nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-label {
+    color: #444;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-link {
+    color: #c41e3a;
+    text-decoration: none;
+    padding: 0.25rem 0;
+    transition: color 0.2s;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: #ff4444;
+  }
+
+  .nav-link.box {
+    border: 1px solid #c41e3a;
+    padding: 0.5rem;
+    text-align: center;
+    margin-top: 0.25rem;
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+  }
+
+  .nav-link.box:hover, .nav-link.box.active {
+    background: rgba(196, 30, 58, 0.1);
+  }
+
+  .about-section {
+    padding: 1rem 0;
+    border-top: 1px solid #1a1a1a;
+  }
+
+  .tagline {
+    color: #c41e3a;
+    margin-bottom: 0.25rem;
+  }
+
+  .phase {
+    color: #555;
+    font-size: 0.75rem;
+  }
+
+  .links {
+    margin-top: auto;
+  }
+
+  .chain-info {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #1a1a1a;
+    flex-wrap: wrap;
+  }
+
+  .base-label {
+    color: #0052ff;
+    font-weight: bold;
+  }
+
+  .chain-id {
+    color: #444;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: flex;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 260px;
+      z-index: 1000;
+      transition: left 0.3s ease;
+      padding-top: 4rem;
+    }
+
+    :global(.sidebar.open) {
+      left: 0;
+    }
+  }
+</style>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  function toggleMenu() {
+    sidebar?.classList.toggle('open');
+    overlay?.classList.toggle('open');
+    if (menuToggle) menuToggle.textContent = sidebar?.classList.contains('open') ? '✕' : '☰';
+  }
+
+  menuToggle?.addEventListener('click', toggleMenu);
+  overlay?.addEventListener('click', toggleMenu);
+
+  sidebar?.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) toggleMenu();
+    });
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      sidebar?.classList.remove('open');
+      overlay?.classList.remove('open');
+      if (menuToggle) menuToggle.textContent = '☰';
+    }
+  });
+</script>

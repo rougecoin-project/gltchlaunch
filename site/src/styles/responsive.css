@@ -1,0 +1,67 @@
+/* Shared responsive styles for GLTCH Launch pages */
+
+/* Mobile Menu Toggle */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: #c41e3a;
+  border: none;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-toggle:hover {
+  background: #ff4444;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+/* Mobile breakpoint */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0;
+    left: -100%;
+    width: 260px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    padding-top: 4rem !important;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .main {
+    margin-left: 0 !important;
+    padding-top: 60px;
+  }
+}
