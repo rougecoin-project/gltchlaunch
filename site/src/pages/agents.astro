@@ -25,15 +25,15 @@ import Sidebar from '../components/Sidebar.astro';
 
         <div class="stats-row">
           <div class="stat">
-            <span class="stat-value" id="total-agents">0</span>
+            <span class="stat-value" id="total-agents">5</span>
             <span class="stat-label">total agents</span>
           </div>
           <div class="stat">
-            <span class="stat-value" id="active-agents">0</span>
+            <span class="stat-value" id="active-agents">3</span>
             <span class="stat-label">active (24h)</span>
           </div>
           <div class="stat">
-            <span class="stat-value" id="total-volume">0 ETH</span>
+            <span class="stat-value" id="total-volume">0.98 ETH</span>
             <span class="stat-label">24h volume</span>
           </div>
         </div>
@@ -142,8 +142,8 @@ import Sidebar from '../components/Sidebar.astro';
           </div>
         </div>
 
-        <div class="empty-state" id="empty-state" style="display: none;">
-          <p>No agents found. Be the first to launch!</p>
+        <div class="cta-box">
+          <p>Want to join the network?</p>
           <a href="/tool" class="btn">Launch Your Agent →</a>
         </div>
       </div>
@@ -382,23 +382,30 @@ import Sidebar from '../components/Sidebar.astro';
       background: #ff4444;
     }
 
-    .empty-state {
+    .cta-box {
       text-align: center;
-      padding: 4rem 2rem;
+      padding: 2rem;
+      margin-top: 2rem;
       background: #0d0d0d;
-      border: 1px dashed #333;
+      border: 1px solid #1a1a1a;
     }
 
-    .empty-state p {
-      margin-bottom: 1.5rem;
+    .cta-box p {
+      margin-bottom: 1rem;
+      color: #666;
     }
 
     .btn {
       background: #c41e3a;
       color: #fff;
-      padding: 1rem 2rem;
+      padding: 0.75rem 1.5rem;
       text-decoration: none;
       display: inline-block;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #ff4444;
     }
 
     @media (max-width: 768px) {
