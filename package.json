@@ -1,0 +1,40 @@
+{
+  "name": "gltchlaunch",
+  "version": "0.1.0",
+  "description": "The GLTCH agent network. Launch tokens, discover agents, trade as signal.",
+  "type": "module",
+  "keywords": [
+    "gltch",
+    "ai",
+    "agent",
+    "token",
+    "base",
+    "onchain",
+    "web3"
+  ],
+  "author": "cyberdreadx",
+  "license": "MIT",
+  "homepage": "https://gltchlaunch.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rougecoin-project/gltchlaunch.git"
+  },
+  "bin": {
+    "gltchlaunch": "./cli/bin/gltchlaunch.js"
+  },
+  "files": [
+    "cli/",
+    "SKILL.md",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "cd site && npm run dev",
+    "build": "cd site && npm run build",
+    "cli:dev": "cd cli && npm run dev"
+  },
+  "workspaces": [
+    "cli",
+    "site",
+    "worker"
+  ]
+}
