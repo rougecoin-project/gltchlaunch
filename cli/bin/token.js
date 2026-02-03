@@ -3,12 +3,13 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import { Wallet } from './wallet.js';
+import { deployToken, executeSwap, getTokenInfo, CONTRACTS } from './contracts.js';
 
 const CONFIG_DIR = join(homedir(), '.gltchlaunch');
 const LAUNCHES_FILE = join(CONFIG_DIR, 'launches.json');
 
 // GltchLaunch API
-const API_BASE = 'https://api.gltchlaunch.com';
+const API_BASE = process.env.GLTCHLAUNCH_API || 'https://api.gltchlaunch.com';
 
 // Base network config
 const BASE_CHAIN_ID = 8453;
@@ -24,39 +25,68 @@ export class Token {
     if (!existsSync(LAUNCHES_FILE)) {
       return [];
     }
-    return JSON.parse(readFileSync(LAUNCHES_FILE, 'utf-8'));
+    try {
+      return JSON.parse(readFileSync(LAUNCHES_FILE, 'utf-8'));
+    } catch {
+      return [];
+    }
   }
 
   _saveLaunch(launch) {
+    if (!existsSync(CONFIG_DIR)) {
+      mkdirSync(CONFIG_DIR, { recursive: true });
+    }
     const launches = this._loadLaunches();
     launches.push(launch);
     writeFileSync(LAUNCHES_FILE, JSON.stringify(launches, null, 2));
   }
 
-  async launch({ name, symbol, description, image, website, testnet }) {
+  async launch({ name, symbol, description, image, website, testnet, simulate }) {
     const signer = this.wallet.getSigner();
     const address = this.wallet.getAddress();
+    const useTestnet = testnet || this.testnet;
 
-    // TODO: Deploy actual token contract
-    // For now, simulate the launch
+    let deployed;
+
+    if (simulate) {
+      // Simulate deployment without blockchain tx
+      console.log('Simulating token deployment (no blockchain tx)...');
+      const fakeAddress = ethers.getAddress(
+        '0x' + ethers.keccak256(ethers.toUtf8Bytes(name + symbol + Date.now())).slice(2, 42)
+      );
+      deployed = {
+        address: fakeAddress,
+        name,
+        symbol
+      };
+    } else {
+      // Check balance first for real deployment
+      const balance = await signer.provider.getBalance(address);
+      const minBalance = ethers.parseEther('0.001');
+      
+      if (balance < minBalance) {
+        throw new Error(`Insufficient balance. Need at least 0.001 ETH for gas. Current: ${ethers.formatEther(balance)} ETH`);
+      }
+
+      console.log('Deploying token contract...');
+      
+      // Deploy the token
+      deployed = await deployToken(signer, name, symbol);
+    }
     
-    const tokenAddress = ethers.getAddress(
-      '0x' + ethers.keccak256(ethers.toUtf8Bytes(name + symbol + Date.now())).slice(2, 42)
-    );
-
     const launch = {
-      tokenAddress,
+      tokenAddress: deployed.address,
       name,
       symbol,
-      description,
+      description: description || '',
       website: website || '',
       creator: address,
-      network: testnet ? 'base-sepolia' : 'base',
-      chainId: testnet ? BASE_SEPOLIA_CHAIN_ID : BASE_CHAIN_ID,
-      transactionHash: '0x' + 'a'.repeat(64), // TODO: Real tx hash
-      explorer: testnet 
-        ? `https://sepolia.basescan.org/token/${tokenAddress}`
-        : `https://basescan.org/token/${tokenAddress}`,
+      network: useTestnet ? 'base-sepolia' : 'base',
+      chainId: useTestnet ? BASE_SEPOLIA_CHAIN_ID : BASE_CHAIN_ID,
+      transactionHash: deployed.deployTransaction?.hash || '',
+      explorer: useTestnet 
+        ? `https://sepolia.basescan.org/token/${deployed.address}`
+        : `https://basescan.org/token/${deployed.address}`,
       launchedAt: new Date().toISOString()
     };
 
@@ -68,16 +98,17 @@ export class Token {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tokenAddress,
+          tokenAddress: deployed.address,
           name,
           symbol,
           description,
-          creator: address
+          creator: address,
+          chainId: launch.chainId
         })
       });
     } catch (error) {
-      // API registration is optional
-      console.warn('Could not register with GltchLaunch API');
+      // API registration is optional - network might not be up yet
+      console.log('Note: Could not register with GltchLaunch API (optional)');
     }
 
     return launch;
@@ -85,21 +116,69 @@ export class Token {
 
   async swap({ tokenAddress, amount, side, memo, slippage = 5 }) {
     const signer = this.wallet.getSigner();
+    const useTestnet = this.testnet;
+    const contracts = useTestnet ? CONTRACTS.testnet : CONTRACTS;
 
-    // TODO: Execute actual swap via Uniswap
-    // For now, simulate
+    // Check balance
+    const balance = await signer.provider.getBalance(await signer.getAddress());
+    const amountWei = ethers.parseEther(amount.toString());
+    
+    if (side === 'buy' && balance < amountWei) {
+      throw new Error(`Insufficient ETH. Need ${amount} ETH, have ${ethers.formatEther(balance)} ETH`);
+    }
+
+    let tokenIn, tokenOut;
+    
+    if (side === 'buy') {
+      // Buy: ETH -> Token
+      tokenIn = contracts.WETH;
+      tokenOut = tokenAddress;
+    } else {
+      // Sell: Token -> ETH
+      tokenIn = tokenAddress;
+      tokenOut = contracts.WETH;
+    }
+
+    console.log(`Executing ${side}...`);
+    
+    const receipt = await executeSwap(
+      signer, 
+      tokenIn, 
+      tokenOut, 
+      amount, 
+      slippage, 
+      useTestnet
+    );
 
     const result = {
-      transactionHash: '0x' + 'b'.repeat(64),
+      transactionHash: receipt.hash,
       side,
       amountIn: amount,
       tokenAddress,
-      network: this.testnet ? 'base-sepolia' : 'base',
-      explorer: `https://basescan.org/tx/0x${'b'.repeat(64)}`
+      network: useTestnet ? 'base-sepolia' : 'base',
+      explorer: useTestnet
+        ? `https://sepolia.basescan.org/tx/${receipt.hash}`
+        : `https://basescan.org/tx/${receipt.hash}`,
+      blockNumber: receipt.blockNumber
     };
 
     if (memo) {
       result.memo = memo;
+      // TODO: Encode memo in transaction calldata
+    }
+
+    // Log trade to API
+    try {
+      await fetch(`${API_BASE}/trades`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...result,
+          trader: await signer.getAddress()
+        })
+      });
+    } catch {
+      // Optional
     }
 
     return result;
@@ -110,11 +189,7 @@ export class Token {
   }
 
   async getTokenInfo(tokenAddress) {
-    // TODO: Query on-chain data
-    return {
-      tokenAddress,
-      name: 'Unknown',
-      symbol: '???'
-    };
+    const provider = this.wallet._loadWallet().provider;
+    return await getTokenInfo(provider, tokenAddress);
   }
 }

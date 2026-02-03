@@ -54,19 +54,21 @@ program
   .option('--image <path>', 'Path to token image')
   .option('--website <url>', 'Website URL for metadata')
   .option('--testnet', 'Use Base Sepolia testnet')
+  .option('--simulate', 'Simulate launch without blockchain tx')
   .option('--json', 'Output as JSON')
   .action(async (options) => {
     const spinner = ora('Launching token...').start();
     
     try {
-      const token = new Token();
+      const token = new Token(options.testnet);
       const result = await token.launch({
         name: options.name,
         symbol: options.symbol,
         description: options.description,
         image: options.image,
         website: options.website,
-        testnet: options.testnet
+        testnet: options.testnet,
+        simulate: options.simulate
       });
       
       spinner.succeed('Token launched!');

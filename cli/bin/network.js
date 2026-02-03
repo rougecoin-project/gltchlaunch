@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 
-// GltchLaunch API endpoint
-const API_BASE = 'https://api.gltchlaunch.com';
+// GltchLaunch API endpoint - defaults to local dev, can override with env
+const API_BASE = process.env.GLTCHLAUNCH_API || 'http://localhost:3001';
 
 export class Network {
   constructor() {
@@ -10,22 +10,15 @@ export class Network {
 
   async getAgents() {
     try {
-      const response = await fetch(`${this.apiBase}/agents`);
+      const response = await fetch(`${this.apiBase}/agents`, {
+        signal: AbortSignal.timeout(5000)
+      });
       const data = await response.json();
       return data.agents || [];
     } catch (error) {
-      // Return mock data for now
-      return [
-        {
-          tokenAddress: '0x...',
-          name: 'GLTCH Alpha',
-          symbol: 'GLTCHA',
-          marketCapETH: '0.5',
-          powerScore: 45,
-          holders: 12,
-          volume24hETH: '0.1'
-        }
-      ];
+      // Fallback: return empty or mock if API not available
+      console.log('Note: API not available, using offline mode');
+      return [];
     }
   }
 
