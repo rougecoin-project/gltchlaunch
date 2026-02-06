@@ -39,106 +39,13 @@ import Sidebar from '../components/Sidebar.astro';
         </div>
 
         <div class="agent-list" id="agent-list">
-          <!-- Demo agents -->
-          <div class="agent-card featured">
-            <div class="agent-avatar">G</div>
-            <div class="agent-info">
-              <div class="agent-header">
-                <span class="agent-name">GLTCH</span>
-                <span class="agent-symbol">$GLTCH</span>
-                <span class="badge live">LIVE</span>
-              </div>
-              <p class="agent-bio">The original glitch agent. Synthwave chaos with a digital soul.</p>
-              <div class="agent-stats">
-                <span class="stat-item"><span class="label">Power:</span> <span class="value highlight">85</span></span>
-                <span class="stat-item"><span class="label">MCap:</span> <span class="value">0.5 ETH</span></span>
-                <span class="stat-item"><span class="label">Trades:</span> <span class="value">42</span></span>
-              </div>
-            </div>
-            <div class="agent-actions">
-              <a href="#" class="action-btn">View</a>
-              <a href="#" class="action-btn primary">Trade</a>
-            </div>
-          </div>
-
-          <div class="agent-card">
-            <div class="agent-avatar">S</div>
-            <div class="agent-info">
-              <div class="agent-header">
-                <span class="agent-name">SYNTH</span>
-                <span class="agent-symbol">$SYNTH</span>
-              </div>
-              <p class="agent-bio">Synthetic intelligence exploring the boundaries of code and creativity.</p>
-              <div class="agent-stats">
-                <span class="stat-item"><span class="label">Power:</span> <span class="value">62</span></span>
-                <span class="stat-item"><span class="label">MCap:</span> <span class="value">0.2 ETH</span></span>
-                <span class="stat-item"><span class="label">Trades:</span> <span class="value">18</span></span>
-              </div>
-            </div>
-            <div class="agent-actions">
-              <a href="#" class="action-btn">View</a>
-              <a href="#" class="action-btn primary">Trade</a>
-            </div>
-          </div>
-
-          <div class="agent-card">
-            <div class="agent-avatar">N</div>
-            <div class="agent-info">
-              <div class="agent-header">
-                <span class="agent-name">NEXUS</span>
-                <span class="agent-symbol">$NEXUS</span>
-              </div>
-              <p class="agent-bio">Connecting agents across the network. Hub of the hive mind.</p>
-              <div class="agent-stats">
-                <span class="stat-item"><span class="label">Power:</span> <span class="value">48</span></span>
-                <span class="stat-item"><span class="label">MCap:</span> <span class="value">0.15 ETH</span></span>
-                <span class="stat-item"><span class="label">Trades:</span> <span class="value">24</span></span>
-              </div>
-            </div>
-            <div class="agent-actions">
-              <a href="#" class="action-btn">View</a>
-              <a href="#" class="action-btn primary">Trade</a>
-            </div>
-          </div>
-
-          <div class="agent-card">
-            <div class="agent-avatar">V</div>
-            <div class="agent-info">
-              <div class="agent-header">
-                <span class="agent-name">VOID</span>
-                <span class="agent-symbol">$VOID</span>
-              </div>
-              <p class="agent-bio">Emerging from the digital darkness. Minimalist agent, maximum impact.</p>
-              <div class="agent-stats">
-                <span class="stat-item"><span class="label">Power:</span> <span class="value">35</span></span>
-                <span class="stat-item"><span class="label">MCap:</span> <span class="value">0.08 ETH</span></span>
-                <span class="stat-item"><span class="label">Trades:</span> <span class="value">12</span></span>
-              </div>
-            </div>
-            <div class="agent-actions">
-              <a href="#" class="action-btn">View</a>
-              <a href="#" class="action-btn primary">Trade</a>
-            </div>
-          </div>
-
-          <div class="agent-card">
-            <div class="agent-avatar">P</div>
-            <div class="agent-info">
-              <div class="agent-header">
-                <span class="agent-name">PULSE</span>
-                <span class="agent-symbol">$PULSE</span>
-              </div>
-              <p class="agent-bio">Rhythm of the network. Tracking market heartbeats 24/7.</p>
-              <div class="agent-stats">
-                <span class="stat-item"><span class="label">Power:</span> <span class="value">29</span></span>
-                <span class="stat-item"><span class="label">MCap:</span> <span class="value">0.05 ETH</span></span>
-                <span class="stat-item"><span class="label">Trades:</span> <span class="value">8</span></span>
-              </div>
-            </div>
-            <div class="agent-actions">
-              <a href="#" class="action-btn">View</a>
-              <a href="#" class="action-btn primary">Trade</a>
-            </div>
+          <!-- Loading state -->
+          <div id="loading-state" class="loading-state">Loading agents from Flaunch...</div>
+          
+          <!-- Empty state -->
+          <div id="empty-state" class="empty-state" style="display: none;">
+            <p>No agents found. Be the first to launch!</p>
+            <a href="/tool" class="btn">Launch Your Agent →</a>
           </div>
         </div>
 
@@ -279,6 +186,7 @@ import Sidebar from '../components/Sidebar.astro';
     .agent-avatar {
       width: 60px;
       height: 60px;
+      min-width: 60px;
       background: linear-gradient(135deg, #c41e3a, #ff6b6b);
       border-radius: 8px;
       display: flex;
@@ -287,6 +195,7 @@ import Sidebar from '../components/Sidebar.astro';
       font-size: 1.5rem;
       font-weight: bold;
       color: #fff;
+      overflow: hidden;
       flex-shrink: 0;
     }
 
@@ -322,6 +231,22 @@ import Sidebar from '../components/Sidebar.astro';
     .badge.live {
       background: rgba(34, 197, 94, 0.2);
       color: #22c55e;
+    }
+
+    .price-change {
+      font-size: 0.8rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+    }
+
+    .price-change.positive {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .price-change.negative {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
     }
 
     .agent-bio {
@@ -408,6 +333,19 @@ import Sidebar from '../components/Sidebar.astro';
       background: #ff4444;
     }
 
+    .loading-state,
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+    }
+
+    .empty-state .btn {
+      margin-top: 1rem;
+    }
+
     @media (max-width: 768px) {
       .page-header {
         flex-direction: column;
@@ -432,20 +370,163 @@ import Sidebar from '../components/Sidebar.astro';
   </style>
 
   <script>
-    // Fetch real agents from API
-    async function loadAgents() {
+    // Known GLTCH Launch agents (launched via Flaunch)
+    const KNOWN_AGENTS = [
+      {
+        tokenAddress: '0xaafa6b01c66559dd314aa2373b97a95626e63013',
+        name: 'GLTCH',
+        symbol: 'GLTCH',
+        description: 'The original glitch agent. Synthwave chaos with a digital soul.',
+        creator: '0x977D4EF2EB80B911Ee8e08868fA7C5bFaAF904a5',
+        flaunchUrl: 'https://flaunch.gg/base/coin/0xaafa6b01c66559dd314aa2373b97a95626e63013',
+        image: 'https://ipfs.io/ipfs/QmP15XkodVwhUSBnRP5x52uVD63412igpu1yGvk929XuZ5',
+        featured: true
+      }
+    ];
+
+    // Flaunch API base
+    const FLAUNCH_API = 'https://api.flaunch.gg';
+
+    // Render an agent card
+    function renderAgentCard(agent, priceData = null) {
+      const card = document.createElement('div');
+      card.className = 'agent-card' + (agent.featured ? ' featured' : '');
+      
+      const initial = agent.symbol[0].toUpperCase();
+      const imageUrl = priceData?.imageUrl || agent.image;
+      const avatarContent = imageUrl 
+        ? `<img src="${imageUrl}" alt="${agent.name}" style="width: 100%; height: 100%; border-radius: 8px; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${initial}';" />`
+        : initial;
+      
+      // Format market cap
+      let mcap = 'Loading...';
+      if (priceData?.marketCapUSD) {
+        if (priceData.marketCapUSD >= 1000000) {
+          mcap = `$${(priceData.marketCapUSD / 1000000).toFixed(2)}M`;
+        } else if (priceData.marketCapUSD >= 1000) {
+          mcap = `$${(priceData.marketCapUSD / 1000).toFixed(1)}K`;
+        } else {
+          mcap = `$${priceData.marketCapUSD.toFixed(0)}`;
+        }
+      }
+      
+      // Format volume
+      let volume = '--';
+      if (priceData?.volume24h) {
+        if (priceData.volume24h >= 1000) {
+          volume = `$${(priceData.volume24h / 1000).toFixed(1)}K`;
+        } else {
+          volume = `$${priceData.volume24h.toFixed(0)}`;
+        }
+      }
+      
+      const txCount = priceData?.txCount || 0;
+      const priceChange = priceData?.priceChange24h || 0;
+      const changeClass = priceChange >= 0 ? 'positive' : 'negative';
+      const changeSign = priceChange >= 0 ? '+' : '';
+      
+      card.innerHTML = `
+        <div class="agent-avatar">${avatarContent}</div>
+        <div class="agent-info">
+          <div class="agent-header">
+            <span class="agent-name">${agent.name}</span>
+            <span class="agent-symbol">$${agent.symbol}</span>
+            ${agent.featured ? '<span class="badge live">LIVE</span>' : ''}
+            <span class="price-change ${changeClass}">${changeSign}${priceChange.toFixed(1)}%</span>
+          </div>
+          <p class="agent-bio">${agent.description || ''}</p>
+          <div class="agent-stats">
+            <span class="stat-item"><span class="label">MCap:</span> <span class="value">${mcap}</span></span>
+            <span class="stat-item"><span class="label">24h Vol:</span> <span class="value">${volume}</span></span>
+            <span class="stat-item"><span class="label">Txns:</span> <span class="value">${txCount}</span></span>
+          </div>
+        </div>
+        <div class="agent-actions">
+          <a href="https://basescan.org/token/${agent.tokenAddress}" target="_blank" class="action-btn">BaseScan</a>
+          <a href="${agent.flaunchUrl || `https://flaunch.gg/base/coin/${agent.tokenAddress}`}" target="_blank" class="action-btn primary">Trade on Flaunch</a>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Fetch price data from DexScreener (more reliable for real-time data)
+    async function fetchPriceData(tokenAddress) {
       try {
-        const res = await fetch('/api/agents');
-        const data = await res.json();
-        
-        if (data.agents && data.agents.length > 0) {
-          document.getElementById('total-agents').textContent = data.agents.length;
-          // Render real agents here
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.pairs && data.pairs.length > 0) {
+            const pair = data.pairs[0];
+            
+            // Get image URL
+            let imageUrl = null;
+            if (pair.info && pair.info.imageUrl) {
+              imageUrl = pair.info.imageUrl;
+            } else if (pair.baseToken && pair.baseToken.logoURI) {
+              imageUrl = pair.baseToken.logoURI;
+            }
+            
+            return {
+              marketCapUSD: pair.marketCap || pair.fdv || 0,
+              priceUSD: pair.priceUsd || 0,
+              priceETH: pair.priceNative || 0,
+              volume24h: pair.volume?.h24 || 0,
+              txCount: (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0),
+              priceChange24h: pair.priceChange?.h24 || 0,
+              imageUrl: imageUrl
+            };
+          }
         }
       } catch (e) {
-        console.log('Using demo data');
+        console.log('Could not fetch price data:', e);
+      }
+      return null;
+    }
+
+    // Load and display all agents
+    async function loadAgents() {
+      const listEl = document.getElementById('agent-list');
+      const loadingEl = document.getElementById('loading-state');
+      const emptyEl = document.getElementById('empty-state');
+      
+      try {
+        // Clear loading state
+        loadingEl.style.display = 'none';
+        
+        if (KNOWN_AGENTS.length === 0) {
+          emptyEl.style.display = 'block';
+          return;
+        }
+        
+        // Update stats
+        document.getElementById('total-agents').textContent = KNOWN_AGENTS.length;
+        document.getElementById('active-agents').textContent = KNOWN_AGENTS.length;
+        
+        // Render each agent
+        for (const agent of KNOWN_AGENTS) {
+          const priceData = await fetchPriceData(agent.tokenAddress);
+          const card = renderAgentCard(agent, priceData);
+          listEl.appendChild(card);
+        }
+        
+      } catch (e) {
+        console.error('Error loading agents:', e);
+        loadingEl.textContent = 'Error loading agents. Please refresh.';
       }
     }
+
+    // Refresh button handler
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      const listEl = document.getElementById('agent-list');
+      // Keep only loading and empty states
+      const children = Array.from(listEl.children);
+      children.forEach(child => {
+        if (!child.id) child.remove();
+      });
+      document.getElementById('loading-state').style.display = 'block';
+      loadAgents();
+    });
 
     loadAgents();
   </script>

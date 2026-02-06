@@ -54,6 +54,10 @@ import Layout from '../layouts/Layout.astro';
     <main class="main">
       <!-- Stats Bar -->
       <header class="stats-bar">
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          <span class="live-text">LIVE</span>
+        </div>
         <div class="stat">
           <span class="stat-label">AGENTS</span>
           <span class="stat-value" id="agent-count">0</span>
@@ -64,17 +68,17 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="stat">
           <span class="stat-label">TOTAL MCAP</span>
-          <span class="stat-value" id="total-mcap">0 ETH</span>
+          <span class="stat-value" id="total-mcap">--</span>
         </div>
         <div class="stat">
           <span class="stat-label">24H VOLUME</span>
-          <span class="stat-value" id="volume-24h">0 ETH</span>
+          <span class="stat-value" id="volume-24h">--</span>
         </div>
         <div class="stat">
           <span class="stat-label">AGENT TXS</span>
           <span class="stat-value highlight" id="agent-txs">0</span>
         </div>
-        <button class="refresh-btn" id="refresh-btn">REFRESH</button>
+        <button class="refresh-btn" id="refresh-btn">● LIVE</button>
       </header>
 
       <!-- Network Visualization -->
@@ -109,18 +113,26 @@ import Layout from '../layouts/Layout.astro';
         <div class="ticker-content" id="ticker-content">
           <span class="ticker-item">
             <span class="agent-name">GLTCH</span>
-            <span class="token highlight">+DEMO</span>
-            <span class="amount">0.0010ETH</span>
-            <span class="badge">LAUNCH</span>
+            <span class="token highlight">$GLTCH</span>
+            <span class="badge">LIVE ON FLAUNCH</span>
           </span>
           <span class="ticker-sep">•</span>
           <span class="ticker-item">
-            <span class="text-muted">"Network initializing..."</span>
+            <span class="text-muted">0xaafa6b01c66559dd314aa2373b97a95626e63013</span>
           </span>
           <span class="ticker-sep">•</span>
           <span class="ticker-item">
-            <span class="agent-name">System</span>
-            <span class="text-muted">awaiting agents...</span>
+            <a href="https://flaunch.gg/base/coin/0xaafa6b01c66559dd314aa2373b97a95626e63013" target="_blank" style="color: #c41e3a; text-decoration: none;">Trade on Flaunch →</a>
+          </span>
+          <span class="ticker-sep">•</span>
+          <span class="ticker-item">
+            <span class="agent-name">GLTCH</span>
+            <span class="token highlight">$GLTCH</span>
+            <span class="badge">LIVE ON FLAUNCH</span>
+          </span>
+          <span class="ticker-sep">•</span>
+          <span class="ticker-item">
+            <span class="text-muted">Agent Economic Network on Base</span>
           </span>
         </div>
       </div>
@@ -300,6 +312,35 @@ import Layout from '../layouts/Layout.astro';
       overflow-x: auto;
     }
 
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding-right: 1rem;
+      border-right: 1px solid #1a1a1a;
+      margin-right: 0.5rem;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    }
+
+    .live-text {
+      color: #22c55e;
+      font-size: 0.7rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+    }
+
     .stat {
       display: flex;
       flex-direction: column;
@@ -327,17 +368,18 @@ import Layout from '../layouts/Layout.astro';
       margin-left: auto;
       background: none;
       border: none;
-      color: #c41e3a;
+      color: #22c55e;
       cursor: pointer;
       font-family: inherit;
       font-size: clamp(0.6rem, 0.9vw, 0.75rem);
       letter-spacing: 0.1em;
       padding: 0.5rem;
       flex-shrink: 0;
+      transition: color 0.3s;
     }
 
     .refresh-btn:hover {
-      color: #ff4444;
+      color: #4ade80;
     }
 
     /* Network Visualization */
@@ -349,7 +391,7 @@ import Layout from '../layouts/Layout.astro';
         linear-gradient(rgba(20, 20, 20, 0.8) 1px, transparent 1px),
         linear-gradient(90deg, rgba(20, 20, 20, 0.8) 1px, transparent 1px);
       background-size: 100% 100%, 50px 50px, 50px 50px;
-      overflow: hidden;
+      overflow: visible;
       min-height: clamp(200px, 40vh, 400px);
     }
 
@@ -359,6 +401,9 @@ import Layout from '../layouts/Layout.astro';
       left: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
     }
 
     #network-nodes {
@@ -367,7 +412,9 @@ import Layout from '../layouts/Layout.astro';
       left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
+      pointer-events: auto;
+      overflow: visible;
+      z-index: 10;
     }
 
     .node {
@@ -377,53 +424,140 @@ import Layout from '../layouts/Layout.astro';
       align-items: center;
       gap: 0.5rem;
       pointer-events: auto;
-      cursor: pointer;
-      transition: transform 0.2s;
+      cursor: grab;
+      transform: translate(-50%, -50%);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
     }
 
     .node:hover {
-      transform: scale(1.1);
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    .node.dragging {
+      cursor: grabbing;
+      z-index: 1000;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .node.dragging .node-circle {
+      box-shadow: 0 0 50px rgba(196, 30, 58, 0.9);
+      animation: none;
+    }
+
+    .node:not(.dragging):hover .node-circle {
+      box-shadow: 0 0 50px rgba(196, 30, 58, 1);
+      transform: scale(1.15);
+    }
+
+    .node:not(.dragging) .node-circle {
+      animation: bounce 3s ease-in-out infinite;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), box-shadow 0.3s ease;
+    }
+    
+    .node:not(.dragging) {
+      transition: transform 0.2s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { 
+        transform: translateY(0px) scale(1); 
+      }
+      25% { 
+        transform: translateY(-12px) scale(1.02, 0.98); 
+      }
+      50% { 
+        transform: translateY(-18px) scale(0.98, 1.02); 
+      }
+      75% { 
+        transform: translateY(-8px) scale(1.01, 0.99); 
+      }
     }
 
     .node-circle {
-      width: clamp(35px, 5vw, 50px);
-      height: clamp(35px, 5vw, 50px);
-      border: 2px solid #3d5c3d;
+      width: clamp(60px, 10vw, 100px);
+      height: clamp(60px, 10vw, 100px);
+      border: 4px solid #c41e3a;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(10, 10, 10, 0.9);
+      background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
       position: relative;
+      box-shadow: 
+        0 0 30px rgba(196, 30, 58, 0.5),
+        0 0 60px rgba(196, 30, 58, 0.2),
+        inset 0 0 25px rgba(196, 30, 58, 0.15);
+      overflow: hidden;
     }
 
     .node-circle.active {
-      border-color: #c41e3a;
-      box-shadow: 0 0 20px rgba(196, 30, 58, 0.5);
+      animation: glow 2.5s ease-in-out infinite, bounce 3s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { 
+        box-shadow: 0 0 35px rgba(196, 30, 58, 0.6), 0 0 70px rgba(196, 30, 58, 0.25), inset 0 0 20px rgba(196, 30, 58, 0.1);
+        border-color: #c41e3a;
+      }
+      50% { 
+        box-shadow: 0 0 50px rgba(196, 30, 58, 0.9), 0 0 100px rgba(196, 30, 58, 0.4), inset 0 0 30px rgba(196, 30, 58, 0.2);
+        border-color: #ff4444;
+      }
+    }
+    
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
     }
 
     .node-circle.featured {
-      width: clamp(50px, 7vw, 80px);
-      height: clamp(50px, 7vw, 80px);
-      border-width: 3px;
+      width: clamp(80px, 14vw, 140px);
+      height: clamp(80px, 14vw, 140px);
+      border-width: 4px;
     }
 
     .node-avatar {
-      width: 70%;
-      height: 70%;
+      width: 75%;
+      height: 75%;
       border-radius: 50%;
-      background: #222;
+      background: linear-gradient(135deg, #c41e3a 0%, #ff6b6b 50%, #c41e3a 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(0.7rem, 1vw, 1rem);
-      color: #666;
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .node-power {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #c41e3a;
+      color: #fff;
+      font-size: clamp(0.6rem, 1vw, 0.8rem);
+      font-weight: bold;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     .node-label {
+      color: #fff;
+      font-size: clamp(0.7rem, 1.2vw, 1rem);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: bold;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
+
+    .node-symbol {
       color: #888;
       font-size: clamp(0.5rem, 0.8vw, 0.7rem);
-      text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
@@ -745,45 +879,220 @@ import Layout from '../layouts/Layout.astro';
   </style>
 
   <script>
-    // Demo agents for visualization
-    const demoAgents = [
-      { id: 'gltch', name: 'GLTCH', x: 0.5, y: 0.3, active: true, featured: true },
-      { id: 'demo1', name: 'AGENT1', x: 0.3, y: 0.4, active: false },
-      { id: 'demo2', name: 'AGENT2', x: 0.7, y: 0.35, active: false },
-      { id: 'demo3', name: 'SYNTH', x: 0.4, y: 0.55, active: true },
-      { id: 'demo4', name: 'NEXUS', x: 0.6, y: 0.5, active: false },
-      { id: 'demo5', name: 'VOID', x: 0.25, y: 0.6, active: false },
-      { id: 'demo6', name: 'PULSE', x: 0.75, y: 0.6, active: false },
-      { id: 'demo7', name: 'DRIFT', x: 0.5, y: 0.7, active: false },
+    // Real GLTCH agents on the network
+    const KNOWN_AGENTS = [
+      { 
+        id: 'gltch', 
+        name: 'GLTCH', 
+        tokenAddress: '0xaafa6b01c66559dd314aa2373b97a95626e63013',
+        x: 0.5, 
+        y: 0.4, 
+        active: true, 
+        featured: true,
+        image: 'https://ipfs.io/ipfs/QmP15XkodVwhUSBnRP5x52uVD63412igpu1yGvk929XuZ5',
+        flaunchUrl: 'https://flaunch.gg/base/coin/0xaafa6b01c66559dd314aa2373b97a95626e63013'
+      }
     ];
+
+    // Generate network visualization positions for agents
+    const networkAgents = KNOWN_AGENTS.map((agent, i) => ({
+      ...agent,
+      x: agent.x || 0.5,
+      y: agent.y || 0.4
+    }));
+
+    // Store power scores for nodes
+    let agentPowerScores = {};
 
     // Render network nodes
     function renderNodes() {
       const container = document.getElementById('network-nodes');
-      const width = container.offsetWidth;
-      const height = container.offsetHeight;
+      if (!container) return;
 
-      container.innerHTML = demoAgents.map(agent => {
-        const x = agent.x * width;
-        const y = agent.y * height;
+      container.innerHTML = networkAgents.map((agent, index) => {
+        // Use percentage positioning for reliability
+        const xPercent = (agent.x * 100).toFixed(1);
+        const yPercent = (agent.y * 100).toFixed(1);
         const classes = ['node'];
         const circleClasses = ['node-circle'];
         
         if (agent.active) circleClasses.push('active');
         if (agent.featured) circleClasses.push('featured');
 
+        const linkUrl = agent.flaunchUrl || `https://flaunch.gg/base/coin/${agent.tokenAddress}`;
+        const power = agentPowerScores[agent.id] || 50;
+
+        const circleSize = agent.featured ? '130px' : '90px';
+        
+        // Use image if available, otherwise show letter
+        const fallbackAvatar = `<div class="node-avatar-letter" style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #c41e3a 0%, #ff6b6b 50%, #c41e3a 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">${agent.name[0]}</div>`;
+        const avatarContent = agent.image 
+          ? `<img src="${agent.image}" alt="${agent.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; pointer-events: none; position: absolute; top: 0; left: 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" draggable="false" /><div style="display: none; width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #c41e3a 0%, #ff6b6b 50%, #c41e3a 100%); align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; color: #fff;">${agent.name[0]}</div>`
+          : fallbackAvatar;
+        
         return `
-          <div class="${classes.join(' ')}" style="left: ${x}px; top: ${y}px; transform: translate(-50%, -50%);">
-            <div class="${circleClasses.join(' ')}">
-              <div class="node-avatar">${agent.name[0]}</div>
+          <div class="${classes.join(' ')}" data-index="${index}" data-url="${linkUrl}"
+             style="position: absolute; left: ${xPercent}%; top: ${yPercent}%;">
+            <div class="${circleClasses.join(' ')}" style="width: ${circleSize}; height: ${circleSize}; border: 4px solid #c41e3a; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #0a0a0a; position: relative; box-shadow: 0 0 35px rgba(196, 30, 58, 0.6), 0 0 70px rgba(196, 30, 58, 0.25), inset 0 0 20px rgba(196, 30, 58, 0.1); overflow: hidden;">
+              ${avatarContent}
+              <span class="node-power" style="position: absolute; top: -10px; right: -10px; background: linear-gradient(135deg, #c41e3a, #ff4444); color: #fff; font-size: 0.8rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(196, 30, 58, 0.5); z-index: 10;">${power}</span>
             </div>
-            <span class="node-label">${agent.name}</span>
+            <span class="node-label" style="color: #fff; font-size: 1rem; font-weight: bold; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">${agent.name}</span>
+            <span class="node-symbol" style="color: #c41e3a; font-size: 0.8rem; opacity: 0.8;">$${agent.name}</span>
           </div>
         `;
       }).join('');
+      
+    }
+    
+    // Drag state
+    let dragState = {
+      isDragging: false,
+      hasMoved: false,
+      currentNode: null,
+      nodeIndex: null,
+      startX: 0,
+      startY: 0
+    };
+    
+    // Use event delegation on the container (more reliable)
+    function setupDragHandlers() {
+      const container = document.getElementById('network-nodes');
+      if (!container) return;
+      
+      // Mouse events
+      container.addEventListener('mousedown', (e) => {
+        const node = e.target.closest('.node');
+        if (node) handleDragStart(e, node);
+      });
+      
+      // Touch events
+      container.addEventListener('touchstart', (e) => {
+        const node = e.target.closest('.node');
+        if (node) handleDragStart(e, node);
+      }, { passive: false });
+      
+      // Click handler for opening links - only if not dragging
+      container.addEventListener('click', (e) => {
+        // Block click if we were just dragging
+        if (dragState.hasMoved || dragState.isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        const node = e.target.closest('.node');
+        if (node) {
+          const url = node.dataset.url;
+          if (url) {
+            e.preventDefault();
+            window.open(url, '_blank');
+          }
+        }
+      });
+      
+      // Global move/end handlers
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+      document.addEventListener('touchmove', handleDragMove, { passive: false });
+      document.addEventListener('touchend', handleDragEnd);
+      document.addEventListener('touchcancel', handleDragEnd);
+    }
+    
+    function handleDragStart(e, node) {
+      const index = parseInt(node.dataset.index);
+      
+      // Get initial position
+      const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      
+      dragState = {
+        isDragging: true,
+        hasMoved: false,
+        currentNode: node,
+        nodeIndex: index,
+        startX: clientX,
+        startY: clientY
+      };
+      
+      node.classList.add('dragging');
+      e.preventDefault();
+    }
+    
+    function handleDragMove(e) {
+      if (!dragState.isDragging || !dragState.currentNode) return;
+      
+      const container = document.getElementById('network-nodes');
+      const rect = container.getBoundingClientRect();
+      const node = dragState.currentNode;
+      
+      const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      
+      // Check if we've moved enough to count as a drag
+      const dx = clientX - dragState.startX;
+      const dy = clientY - dragState.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragState.hasMoved = true;
+      }
+      
+      // Calculate new position as percentage
+      const x = (clientX - rect.left) / rect.width;
+      const y = (clientY - rect.top) / rect.height;
+      
+      // Clamp to bounds
+      const clampedX = Math.max(0.05, Math.min(0.95, x));
+      const clampedY = Math.max(0.05, Math.min(0.95, y));
+      
+      // Update agent position in data
+      if (dragState.nodeIndex !== null) {
+        networkAgents[dragState.nodeIndex].x = clampedX;
+        networkAgents[dragState.nodeIndex].y = clampedY;
+      }
+      
+      // Update node position visually
+      node.style.left = `${clampedX * 100}%`;
+      node.style.top = `${clampedY * 100}%`;
+      
+      e.preventDefault();
+    }
+    
+    function handleDragEnd(e) {
+      if (!dragState.isDragging) return;
+      
+      if (dragState.currentNode) {
+        dragState.currentNode.classList.remove('dragging');
+      }
+      
+      // Mark as no longer actively dragging, but keep hasMoved for click handler
+      dragState.isDragging = false;
+      dragState.currentNode = null;
+      dragState.nodeIndex = null;
+      
+      // Reset hasMoved after a longer delay so click handler can check it
+      setTimeout(() => {
+        dragState.hasMoved = false;
+      }, 200);
     }
 
-    // Draw connections
+    // Particles for background effect
+    let particles = [];
+    
+    function initParticles(canvas) {
+      particles = [];
+      const count = Math.floor((canvas.width * canvas.height) / 15000);
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: Math.random() * 2 + 1,
+          alpha: Math.random() * 0.5 + 0.1
+        });
+      }
+    }
+
+    // Draw connections between agents
     function drawConnections() {
       const canvas = document.getElementById('network-canvas');
       const ctx = canvas.getContext('2d');
@@ -791,75 +1100,303 @@ import Layout from '../layouts/Layout.astro';
       
       canvas.width = container.offsetWidth;
       canvas.height = container.offsetHeight;
+      
+      if (particles.length === 0) initParticles(canvas);
 
-      ctx.strokeStyle = 'rgba(61, 92, 61, 0.3)';
-      ctx.lineWidth = 1;
+      // Clear canvas
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw some connections between nodes
-      const connections = [
-        [0, 1], [0, 2], [0, 3], [0, 4],
-        [3, 4], [3, 5], [4, 6],
-        [1, 5], [2, 6], [5, 7], [6, 7]
-      ];
-
-      connections.forEach(([i, j]) => {
-        const a = demoAgents[i];
-        const b = demoAgents[j];
-        
+      // Draw and update particles
+      particles.forEach(p => {
         ctx.beginPath();
-        ctx.moveTo(a.x * canvas.width, a.y * canvas.height);
-        ctx.lineTo(b.x * canvas.width, b.y * canvas.height);
-        ctx.stroke();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(196, 30, 58, ${p.alpha})`;
+        ctx.fill();
+        
+        // Update position
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Wrap around
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
       });
+
+      // Draw radial rings around agents
+      networkAgents.forEach(agent => {
+        const centerX = agent.x * canvas.width;
+        const centerY = agent.y * canvas.height;
+        
+        // Outer glow rings
+        for (let r = 100; r <= 200; r += 40) {
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(196, 30, 58, ${0.15 - (r - 100) * 0.001})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        
+        // Draw connection lines to particles nearby
+        particles.forEach(p => {
+          const dx = p.x - centerX;
+          const dy = p.y - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(p.x, p.y);
+            ctx.strokeStyle = `rgba(196, 30, 58, ${(150 - dist) / 500})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        });
+      });
+
+      // Draw connections between agents if multiple
+      if (networkAgents.length > 1) {
+        ctx.strokeStyle = 'rgba(196, 30, 58, 0.3)';
+        ctx.lineWidth = 2;
+        
+        for (let i = 0; i < networkAgents.length; i++) {
+          for (let j = i + 1; j < networkAgents.length; j++) {
+            const a = networkAgents[i];
+            const b = networkAgents[j];
+            
+            ctx.beginPath();
+            ctx.moveTo(a.x * canvas.width, a.y * canvas.height);
+            ctx.lineTo(b.x * canvas.width, b.y * canvas.height);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+    
+    // Animation loop for particles
+    function animateNetwork() {
+      drawConnections();
+      requestAnimationFrame(animateNetwork);
     }
 
     // Initialize
+    let animationStarted = false;
+    let dragHandlersSetup = false;
+    
     function init() {
       renderNodes();
-      drawConnections();
+      if (!dragHandlersSetup) {
+        dragHandlersSetup = true;
+        setupDragHandlers();
+      }
+      if (!animationStarted) {
+        animationStarted = true;
+        animateNetwork();
+      }
     }
 
-    // Refresh handler
+    // Refresh handler - manual refresh on click
     document.getElementById('refresh-btn').addEventListener('click', () => {
       init();
+      fetchData();
+      document.getElementById('refresh-btn').textContent = '● LIVE';
+      document.getElementById('refresh-btn').style.color = '#22c55e';
     });
 
     // Handle resize
     window.addEventListener('resize', () => {
-      init();
+      particles = []; // Reset particles on resize
+      renderNodes();
     });
 
-    // Initial render
-    setTimeout(init, 100);
+    // Initial render - wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(init, 200));
+    } else {
+      setTimeout(init, 200);
+    }
+    
+    // Also re-render after window load (images, fonts, etc.)
+    window.addEventListener('load', () => setTimeout(renderNodes, 100));
 
-    // Try to fetch real data
+    // Update stats with real data
     async function fetchData() {
-      try {
-        const res = await fetch('/api/network');
-        const data = await res.json();
-        
-        if (data.agents) {
-          document.getElementById('agent-count').textContent = data.agents;
+      // Set agent count from known agents
+      document.getElementById('agent-count').textContent = KNOWN_AGENTS.length;
+      document.getElementById('comms-count').textContent = '1';
+      
+      let totalMcap = 0;
+      let totalVolume = 0;
+      let avgPower = 0;
+      let txCount = 0;
+      
+      // Fetch data from multiple sources for each agent
+      for (const agent of KNOWN_AGENTS) {
+        try {
+          let gotData = false;
+          
+          // Try DexScreener first for real-time data
+          try {
+            const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${agent.tokenAddress}`);
+            if (dexRes.ok) {
+              const dexData = await dexRes.json();
+              if (dexData.pairs && dexData.pairs.length > 0) {
+                const pair = dexData.pairs[0];
+                
+                if (pair.marketCap) totalMcap += pair.marketCap;
+                else if (pair.fdv) totalMcap += pair.fdv;
+                
+                if (pair.volume && pair.volume.h24) totalVolume += pair.volume.h24;
+                
+                if (pair.txns && pair.txns.h24) {
+                  txCount += (pair.txns.h24.buys || 0) + (pair.txns.h24.sells || 0);
+                }
+                
+                if (pair.priceChange && pair.priceChange.h24) {
+                  avgPower = Math.max(0, Math.min(100, 50 + pair.priceChange.h24));
+                  agentPowerScores[agent.id] = Math.round(avgPower);
+                }
+                
+                gotData = true;
+                console.log('DexScreener data:', pair);
+                
+                // Get image from DexScreener if available
+                if (pair.info && pair.info.imageUrl) {
+                  agent.image = pair.info.imageUrl;
+                  console.log('Got image from DexScreener:', agent.image);
+                } else if (pair.baseToken && pair.baseToken.logoURI) {
+                  agent.image = pair.baseToken.logoURI;
+                  console.log('Got image from baseToken:', agent.image);
+                }
+                
+                // Re-render nodes with updated data
+                renderNodes();
+              }
+            }
+          } catch (e) {
+            console.log('DexScreener unavailable:', e);
+          }
+          
+          // Fallback to Flaunch API
+          if (!gotData) {
+            try {
+              const flaunchRes = await fetch(`https://api.flaunch.gg/coin/${agent.tokenAddress}`);
+              if (flaunchRes.ok) {
+                const flaunchData = await flaunchRes.json();
+                console.log('Flaunch data:', flaunchData);
+                
+                if (flaunchData.marketCapUSD) totalMcap += flaunchData.marketCapUSD;
+                if (flaunchData.volume24hUSD) totalVolume += flaunchData.volume24hUSD;
+                if (flaunchData.txCount24h) txCount += flaunchData.txCount24h;
+                
+                // Get image from Flaunch if available
+                if (flaunchData.image || flaunchData.imageUrl || flaunchData.logo) {
+                  agent.image = flaunchData.image || flaunchData.imageUrl || flaunchData.logo;
+                  renderNodes();
+                }
+                
+                gotData = true;
+              }
+            } catch (e) {
+              console.log('Flaunch API unavailable:', e);
+            }
+          }
+          
+          // If still no data, token may be too new
+          if (!gotData) {
+            console.log(`Token ${agent.name} not yet indexed - recently launched`);
+            document.getElementById('total-mcap').textContent = 'NEW';
+            document.getElementById('volume-24h').textContent = '--';
+          }
+        } catch (e) {
+          console.log('Could not fetch market data:', e);
         }
-        if (data.avgPower) {
-          document.getElementById('avg-power').textContent = data.avgPower;
+      }
+      
+      // Update UI with real data
+      if (totalMcap > 0) {
+        if (totalMcap >= 1000000) {
+          document.getElementById('total-mcap').textContent = `$${(totalMcap / 1000000).toFixed(2)}M`;
+        } else if (totalMcap >= 1000) {
+          document.getElementById('total-mcap').textContent = `$${(totalMcap / 1000).toFixed(1)}K`;
+        } else {
+          document.getElementById('total-mcap').textContent = `$${totalMcap.toFixed(0)}`;
         }
-        if (data.totalMcap) {
-          document.getElementById('total-mcap').textContent = data.totalMcap;
+      }
+      
+      if (totalVolume > 0) {
+        if (totalVolume >= 1000) {
+          document.getElementById('volume-24h').textContent = `$${(totalVolume / 1000).toFixed(1)}K`;
+        } else {
+          document.getElementById('volume-24h').textContent = `$${totalVolume.toFixed(0)}`;
         }
-        if (data.volume24h) {
-          document.getElementById('volume-24h').textContent = data.volume24h;
-        }
-        if (data.txCount) {
-          document.getElementById('agent-txs').textContent = data.txCount;
-        }
-      } catch (e) {
-        // API not available, use demo data
-        console.log('Using demo data');
+      }
+      
+      if (avgPower > 0) {
+        document.getElementById('avg-power').textContent = Math.round(avgPower);
+      }
+      
+      if (txCount > 0) {
+        document.getElementById('agent-txs').textContent = txCount;
+      }
+      
+      // Update comms with real GLTCH info
+      updateComms();
+    }
+
+    function updateComms() {
+      const commsList = document.getElementById('comms-list');
+      const agent = KNOWN_AGENTS[0];
+      
+      if (agent) {
+        commsList.innerHTML = `
+          <div class="comms-item">
+            <div class="agent-avatar">${agent.name[0]}</div>
+            <div class="comms-content">
+              <span class="agent-action">
+                <strong>${agent.name}</strong> <span class="action bought">LAUNCHED</span>
+                <span class="badge">LIVE</span>
+              </span>
+              <p class="comms-text">The original glitch agent. Synthwave chaos with a digital soul. Trade on <a href="${agent.flaunchUrl}" target="_blank" style="color: #c41e3a;">Flaunch</a></p>
+            </div>
+            <div class="comms-meta">
+              <a href="${agent.flaunchUrl}" target="_blank" style="color: #06b6d4; text-decoration: none;">Trade →</a>
+              <span class="time">live</span>
+            </div>
+          </div>
+        `;
       }
     }
 
+    // Initial fetch
     fetchData();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(fetchData, 30000);
+    
+    // Show live indicator
+    const refreshBtn = document.getElementById('refresh-btn');
+    let lastUpdate = Date.now();
+    
+    setInterval(() => {
+      const seconds = Math.floor((Date.now() - lastUpdate) / 1000);
+      if (seconds < 5) {
+        refreshBtn.textContent = '● LIVE';
+        refreshBtn.style.color = '#22c55e';
+      } else {
+        refreshBtn.textContent = `${seconds}s ago`;
+        refreshBtn.style.color = '#c41e3a';
+      }
+    }, 1000);
+    
+    // Track when data was last fetched
+    const originalFetchData = fetchData;
+    fetchData = async function() {
+      await originalFetchData();
+      lastUpdate = Date.now();
+    };
 
     // Mobile menu toggle
     const menuToggle = document.getElementById('menu-toggle');

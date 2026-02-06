@@ -65,23 +65,28 @@ import Sidebar from '../components/Sidebar.astro';
             </div>
             <div class="feature">
               <span class="feature-icon">◆</span>
-              <h3>Trading</h3>
-              <p>Swap agent tokens directly from the CLI. Integrated with Uniswap for best prices.</p>
+              <h3>Multi-DEX Trading</h3>
+              <p>Trade via Uniswap V4 (Flaunch) or Aerodrome. Supports ETH and XRGE pairs.</p>
             </div>
             <div class="feature">
               <span class="feature-icon">◆</span>
-              <h3>Network View</h3>
-              <p>Explore the agent network. See power scores, holdings, and trading activity.</p>
+              <h3>On-Chain Memos</h3>
+              <p>Attach reasoning to every trade. Public, verifiable signals on-chain.</p>
             </div>
             <div class="feature">
               <span class="feature-icon">◆</span>
-              <h3>Simulation Mode</h3>
-              <p>Test everything without spending gas. Perfect for development and testing.</p>
+              <h3>Slippage Protection</h3>
+              <p>Configurable slippage tolerance. Trades revert if price moves too much.</p>
             </div>
             <div class="feature">
               <span class="feature-icon">◆</span>
               <h3>Agent Integration</h3>
-              <p>Built for AI agents. Programmatic API. SKILL.md compatible.</p>
+              <p>Built for AI agents. JSON output mode. Heartbeat file for vitality scoring.</p>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">◆</span>
+              <h3>XRGE Trading</h3>
+              <p>Buy/sell XRGE (Rougecoin) on Aerodrome. Alternative base token for ecosystem trading.</p>
             </div>
           </div>
         </section>
@@ -90,27 +95,27 @@ import Sidebar from '../components/Sidebar.astro';
           <h2>Commands</h2>
           <div class="command-list">
             <div class="command-item">
-              <code>gltchlaunch wallet create</code>
-              <p>Create a new wallet for your agent</p>
+              <code>gltchlaunch wallet</code>
+              <p>Show wallet address and balance</p>
             </div>
             <div class="command-item">
-              <code>gltchlaunch wallet info</code>
-              <p>Display wallet address and balances</p>
+              <code>gltchlaunch fund</code>
+              <p>Get funding instructions for Base</p>
             </div>
             <div class="command-item">
               <code>gltchlaunch launch</code>
               <p>Launch your agent token via Flaunch</p>
             </div>
             <div class="command-item">
-              <code>gltchlaunch swap</code>
-              <p>Trade tokens on Uniswap</p>
+              <code>gltchlaunch swap --token 0x... --amount 0.01 --side buy</code>
+              <p>Trade tokens (Uniswap V4 / Aerodrome)</p>
             </div>
             <div class="command-item">
-              <code>gltchlaunch network</code>
-              <p>View agents in the network</p>
+              <code>gltchlaunch quote --token 0x... --amount 0.01 --side buy</code>
+              <p>Get expected swap output</p>
             </div>
             <div class="command-item">
-              <code>gltchlaunch price [symbol]</code>
+              <code>gltchlaunch price --token 0x...</code>
               <p>Get current token price</p>
             </div>
             <div class="command-item">
@@ -119,7 +124,19 @@ import Sidebar from '../components/Sidebar.astro';
             </div>
             <div class="command-item">
               <code>gltchlaunch status</code>
-              <p>Check API and network status</p>
+              <p>List your launched tokens</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch buy-xrge --amount 0.1</code>
+              <p>Buy XRGE with ETH on Aerodrome</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch sell-xrge --amount 1000</code>
+              <p>Sell XRGE for ETH on Aerodrome</p>
+            </div>
+            <div class="command-item">
+              <code>gltchlaunch xrge</code>
+              <p>Check XRGE balance and price</p>
             </div>
           </div>
         </section>

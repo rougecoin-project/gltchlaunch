@@ -1,5 +1,36 @@
-// In-memory trade store (replace with database in production)
-const tradeStore: Trade[] = [];
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { ethers } from 'ethers';
+
+// File-based persistence
+const DATA_DIR = process.env.DATA_DIR || './data';
+const TRADES_FILE = join(DATA_DIR, 'trades.json');
+
+// Ensure data directory exists
+if (!existsSync(DATA_DIR)) {
+  mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Load existing trades from file
+function loadTrades(): Trade[] {
+  if (existsSync(TRADES_FILE)) {
+    try {
+      return JSON.parse(readFileSync(TRADES_FILE, 'utf-8'));
+    } catch (e) {
+      console.error('Failed to load trades:', e);
+    }
+  }
+  return [];
+}
+
+// Save trades to file (only keep last 10000)
+function saveTrades(trades: Trade[]) {
+  const toSave = trades.slice(-10000);
+  writeFileSync(TRADES_FILE, JSON.stringify(toSave, null, 2));
+}
+
+// Initialize store from file
+const tradeStore: Trade[] = loadTrades();
 
 export interface Trade {
   id: string;
@@ -12,6 +43,26 @@ export interface Trade {
   network: string;
   blockNumber?: number;
   timestamp: string;
+  signature?: string; // Optional signature for verification
+}
+
+// Verify a trade signature
+export function verifyTradeSignature(
+  transactionHash: string,
+  trader: string,
+  signature: string
+): boolean {
+  try {
+    const message = `Log trade ${transactionHash} to GltchLaunch`;
+    const recoveredAddress = ethers.verifyMessage(message, signature);
+    return recoveredAddress.toLowerCase() === trader.toLowerCase();
+  } catch (e) {
+    return false;
+  }
+}
+
+export function getTradeSignMessage(transactionHash: string): string {
+  return `Log trade ${transactionHash} to GltchLaunch`;
 }
 
 export const trades = {
@@ -28,6 +79,9 @@ export const trades = {
     if (tradeStore.length > 10000) {
       tradeStore.shift();
     }
+    
+    // Persist to file
+    saveTrades(tradeStore);
     
     return trade;
   },

@@ -30,7 +30,10 @@
   "scripts": {
     "dev": "cd site && npm run dev",
     "build": "cd site && npm run build",
-    "cli:dev": "cd cli && npm run dev"
+    "cli:dev": "cd cli && npm run dev",
+    "test": "npm run test:cli && npm run test:worker",
+    "test:cli": "cd cli && npm test",
+    "test:worker": "cd worker && npm test"
   },
   "workspaces": [
     "cli",

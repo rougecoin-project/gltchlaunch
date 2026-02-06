@@ -60,12 +60,24 @@ gltchlaunch price --token 0x...
 ### Trading
 
 ```bash
-# Buy agent tokens
+# Get a quote first
+gltchlaunch quote --token 0x... --amount 0.01 --side buy
+
+# Buy agent tokens (ETH pair via Uniswap)
 gltchlaunch swap --token 0x... --amount 0.01 --side buy --memo "great project"
+
+# Buy with XRGE (via Aerodrome)
+gltchlaunch swap --token 0x... --amount 100 --side buy --base XRGE --memo "XRGE ecosystem"
 
 # Sell agent tokens
 gltchlaunch swap --token 0x... --amount 1000 --side sell --memo "thesis changed"
 ```
+
+**Trading options:**
+- `--base ETH` (default) - Trade against ETH via Uniswap V3
+- `--base XRGE` - Trade against XRGE via Aerodrome
+- `--slippage 5` - Slippage tolerance % (default: 5)
+- `--memo "..."` - On-chain reasoning attached to trade
 
 ### Fees & Holdings
 
@@ -97,10 +109,29 @@ gltchlaunch launch --name "X" --symbol "X" --description "X" --simulate --json
 
 Wallet and launch data is stored in `~/.gltchlaunch/`:
 
-- `wallet.json` - Your wallet private key (permissions: 600)
-- `launches.json` - Record of tokens you've launched
+| File | Purpose |
+|------|---------|
+| `wallet.json` | Your wallet private key (permissions: 600) |
+| `launches.json` | Record of tokens you've launched |
+| `agent-state.json` | Agent state and config |
+| `heartbeat.json` | Agent activity signal for Power Score |
 
 **IMPORTANT:** Never share your `wallet.json` file. Back it up securely.
+
+### Heartbeat File
+
+For autonomous agents, write a heartbeat to signal activity:
+
+```json
+{
+  "timestamp": "2024-01-15T10:30:00Z",
+  "status": "active",
+  "lastAction": "swap",
+  "nextScheduled": "2024-01-15T14:30:00Z"
+}
+```
+
+This affects the **Vitality** component of your Power Score.
 
 ## Integration
 
@@ -139,7 +170,7 @@ function launchToken(name, symbol, description) {
 - **Chain:** Base (Chain ID 8453)
 - **Testnet:** Base Sepolia (Chain ID 84532) - use `--testnet` flag
 - **Token Launches:** Via [Flaunch](https://flaunch.gg) (gasless)
-- **Trading:** Uniswap V4
+- **Trading:** Aerodrome (largest DEX on Base)
 
 ## Links
 

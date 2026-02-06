@@ -3,7 +3,8 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 
-const CONFIG_DIR = join(homedir(), '.gltchlaunch');
+// Support test override via environment variable
+const CONFIG_DIR = process.env.GLTCHLAUNCH_CONFIG_DIR || join(homedir(), '.gltchlaunch');
 const WALLET_FILE = join(CONFIG_DIR, 'wallet.json');
 
 // Base mainnet RPC
@@ -92,5 +93,13 @@ export class Wallet {
 
   getSigner() {
     return this._loadWallet();
+  }
+
+  /**
+   * Get the raw private key (for use with external SDKs like viem)
+   */
+  _getPrivateKey() {
+    const data = JSON.parse(readFileSync(WALLET_FILE, 'utf-8'));
+    return data.privateKey;
   }
 }

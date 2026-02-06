@@ -3,14 +3,18 @@
  * 
  * Flaunch provides gasless token launches on Base.
  * https://flaunch.gg
+ * https://docs.flaunch.gg/for-builders/references/api
  * 
  * The token launches are free - Flaunch takes fees from trading.
  */
 
 import { ethers } from 'ethers';
 
-// Flaunch API endpoints
-const FLAUNCH_API = 'https://api.flaunch.gg';
+// Flaunch Web2 API endpoint
+const FLAUNCH_API = 'https://web2-api.flaunch.gg';
+
+// Flaunch RESTful Data API (for querying token data)
+// See: https://docs.flaunch.gg/for-builders/references/restful-data-api
 const FLAUNCH_DATA_API = 'https://data.flaunch.gg';
 
 /**
@@ -21,66 +25,114 @@ export async function submitLaunch({
   symbol,
   description,
   website,
-  imageUrl,
+  imageIpfs,
   creatorAddress,
-  testnet = false
+  testnet = false,
+  sniperProtection = true,
+  marketCap,
+  creatorFeeSplit
 }) {
-  const endpoint = testnet 
-    ? 'https://api.flaunch.gg/testnet/launch'
-    : 'https://api.flaunch.gg/launch';
+  const network = testnet ? 'base-sepolia' : 'base';
+  const endpoint = `${FLAUNCH_API}/api/v1/${network}/launch-memecoin`;
 
+  const body = {
+    name,
+    symbol: symbol.toUpperCase().slice(0, 8), // Max 8 chars
+    description,
+    creatorAddress,
+    websiteUrl: website || '',
+    sniperProtection, // Enable antibot protection (0.25% wallet cap during fair launch)
+  };
+
+  // If we have an IPFS hash, use it; otherwise Flaunch will use a default
+  if (imageIpfs) {
+    body.imageIpfs = imageIpfs;
+  }
+
+  // Optional: Custom market cap (default is $10k = 10000000000)
+  if (marketCap) {
+    body.marketCap = marketCap.toString();
+  }
+
+  // Optional: Creator fee split in basis points (default 8000 = 80%)
+  if (creatorFeeSplit) {
+    body.creatorFeeSplit = creatorFeeSplit.toString();
+  }
+
+  console.log('Submitting to Flaunch API...');
+  
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      name,
-      symbol,
-      description,
-      website: website || '',
-      imageUrl: imageUrl || '',
-      creator: creatorAddress
-    })
+    body: JSON.stringify(body)
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Flaunch API error: ${error}`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Flaunch API error');
   }
 
-  return await response.json();
+  return {
+    jobId: data.jobId,
+    queuePosition: data.queueStatus?.position || 0,
+    estimatedWait: data.queueStatus?.estimatedWaitSeconds || 60
+  };
 }
 
 /**
  * Poll for launch completion
  */
-export async function pollLaunchStatus(jobId, maxWaitMs = 120000) {
+export async function pollLaunchStatus(jobId, maxWaitMs = 180000) {
   const startTime = Date.now();
-  const pollInterval = 2000;
+  const pollInterval = 3000; // 3 seconds between polls
+
+  console.log(`Waiting for launch (job ${jobId})...`);
 
   while (Date.now() - startTime < maxWaitMs) {
-    const response = await fetch(`${FLAUNCH_API}/job/${jobId}`);
-    const data = await response.json();
+    try {
+      const response = await fetch(`${FLAUNCH_API}/api/v1/launch-status/${jobId}`);
+      const data = await response.json();
 
-    if (data.status === 'completed') {
-      return {
-        success: true,
-        tokenAddress: data.tokenAddress,
-        transactionHash: data.transactionHash,
-        explorer: `https://basescan.org/token/${data.tokenAddress}`,
-        flaunchUrl: `https://flaunch.gg/base/coin/${data.tokenAddress}`
-      };
+      if (!data.success && data.error === 'Job not found') {
+        // Job might not be registered yet, wait and retry
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+        continue;
+      }
+
+      if (data.state === 'completed') {
+        const tokenAddress = data.collectionToken?.address;
+        return {
+          success: true,
+          tokenAddress,
+          transactionHash: data.transactionHash,
+          name: data.collectionToken?.name,
+          symbol: data.collectionToken?.symbol,
+          creator: data.collectionToken?.creator,
+          explorer: `https://basescan.org/token/${tokenAddress}`,
+          flaunchUrl: `https://flaunch.gg/base/coin/${tokenAddress}`
+        };
+      }
+
+      if (data.state === 'failed') {
+        throw new Error(data.error || 'Launch failed');
+      }
+
+      // Still waiting or active
+      const status = data.state === 'active' ? 'Processing...' : `Queue position: ${data.queuePosition}`;
+      process.stdout.write(`\r${status}     `);
+
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+    } catch (error) {
+      if (error.message.includes('Launch failed')) throw error;
+      // Network error, retry
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
     }
-
-    if (data.status === 'failed') {
-      throw new Error(data.error || 'Launch failed');
-    }
-
-    await new Promise(resolve => setTimeout(resolve, pollInterval));
   }
 
-  throw new Error('Launch timed out');
+  throw new Error('Launch timed out after 3 minutes');
 }
 
 /**
@@ -118,28 +170,36 @@ export async function getNetworkTokens(testnet = false, limit = 100) {
 
 /**
  * Upload image to IPFS (via Flaunch)
+ * Returns the IPFS hash for use in launch
  */
 export async function uploadImage(imagePath) {
   const fs = await import('fs');
   const path = await import('path');
   
-  const imageBuffer = fs.readFileSync(imagePath);
-  const fileName = path.basename(imagePath);
+  const imageBuffer = fs.default.readFileSync(imagePath);
   
-  const formData = new FormData();
-  formData.append('file', new Blob([imageBuffer]), fileName);
+  // Convert to base64 with data URI prefix
+  const ext = path.default.extname(imagePath).toLowerCase().replace('.', '');
+  const mimeType = ext === 'png' ? 'image/png' : 
+                   ext === 'gif' ? 'image/gif' : 
+                   ext === 'webp' ? 'image/webp' : 'image/jpeg';
+  const base64Image = `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
 
-  const response = await fetch(`${FLAUNCH_API}/upload`, {
+  const response = await fetch(`${FLAUNCH_API}/api/v1/upload-image`, {
     method: 'POST',
-    body: formData
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ base64Image })
   });
 
-  if (!response.ok) {
-    throw new Error('Image upload failed');
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Image upload failed');
   }
 
-  const data = await response.json();
-  return data.url;
+  return data.ipfsHash;
 }
 
 /**

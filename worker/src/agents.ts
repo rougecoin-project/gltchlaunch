@@ -1,7 +1,37 @@
 import { ethers } from 'ethers';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
-// In-memory store (replace with database in production)
-const agentStore: Map<string, Agent> = new Map();
+// File-based persistence
+const DATA_DIR = process.env.DATA_DIR || './data';
+const AGENTS_FILE = join(DATA_DIR, 'agents.json');
+
+// Ensure data directory exists
+if (!existsSync(DATA_DIR)) {
+  mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Load existing agents from file
+function loadAgents(): Map<string, Agent> {
+  if (existsSync(AGENTS_FILE)) {
+    try {
+      const data = JSON.parse(readFileSync(AGENTS_FILE, 'utf-8'));
+      return new Map(Object.entries(data));
+    } catch (e) {
+      console.error('Failed to load agents:', e);
+    }
+  }
+  return new Map();
+}
+
+// Save agents to file
+function saveAgents(store: Map<string, Agent>) {
+  const data = Object.fromEntries(store);
+  writeFileSync(AGENTS_FILE, JSON.stringify(data, null, 2));
+}
+
+// Initialize store from file
+const agentStore: Map<string, Agent> = loadAgents();
 
 export interface Agent {
   tokenAddress: string;
@@ -11,6 +41,8 @@ export interface Agent {
   creator: string;
   chainId: number;
   registeredAt: string;
+  imageIpfs?: string;
+  imageUrl?: string;
   
   // Metrics (updated by scoring)
   marketCapETH: string;
@@ -22,6 +54,40 @@ export interface Agent {
   // Cross-holdings
   crossHoldings: number;
   crossTradeCount: number;
+}
+
+// Signature verification for permissionless auth
+export function verifySignature(
+  tokenAddress: string,
+  timestamp: number,
+  signature: string,
+  expectedSigner: string
+): boolean {
+  try {
+    // Message format that must be signed
+    const message = `Register ${tokenAddress.toLowerCase()} to GltchLaunch at ${timestamp}`;
+    
+    // Recover the signer address
+    const recoveredAddress = ethers.verifyMessage(message, signature);
+    
+    // Check if recovered address matches expected signer (case-insensitive)
+    const isValid = recoveredAddress.toLowerCase() === expectedSigner.toLowerCase();
+    
+    // Also check timestamp is within 5 minutes
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+    const isRecent = Math.abs(now - timestamp) < fiveMinutes;
+    
+    return isValid && isRecent;
+  } catch (e) {
+    console.error('Signature verification failed:', e);
+    return false;
+  }
+}
+
+// Generate the message that needs to be signed
+export function getSignMessage(tokenAddress: string, timestamp: number): string {
+  return `Register ${tokenAddress.toLowerCase()} to GltchLaunch at ${timestamp}`;
 }
 
 export const agents = {
@@ -48,6 +114,8 @@ export const agents = {
     description: string;
     creator: string;
     chainId: number;
+    imageIpfs?: string;
+    imageUrl?: string;
   }): Promise<Agent> {
     const agent: Agent = {
       ...data,
@@ -62,6 +130,7 @@ export const agents = {
     };
     
     agentStore.set(data.tokenAddress, agent);
+    saveAgents(agentStore); // Persist to file
     return agent;
   },
 
@@ -71,6 +140,7 @@ export const agents = {
     
     const updated = { ...agent, ...updates };
     agentStore.set(tokenAddress, updated);
+    saveAgents(agentStore); // Persist to file
     return updated;
   },
 

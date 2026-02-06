@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { serve } from '@hono/node-server';
-import { agents } from './agents';
-import { trades } from './trades';
+import { agents, verifySignature, getSignMessage } from './agents';
+import { trades, verifyTradeSignature, getTradeSignMessage } from './trades';
 import { scoring } from './scoring';
 
 const app = new Hono();
@@ -45,10 +45,34 @@ app.get('/agents/:address', async (c) => {
 app.post('/agents/register', async (c) => {
   try {
     const body = await c.req.json();
-    const { tokenAddress, name, symbol, description, creator, chainId } = body;
+    const { tokenAddress, name, symbol, description, creator, chainId, signature, timestamp, imageIpfs, imageUrl } = body;
     
     if (!tokenAddress || !name || !symbol) {
-      return c.json({ success: false, error: 'Missing required fields' }, 400);
+      return c.json({ success: false, error: 'Missing required fields: tokenAddress, name, symbol' }, 400);
+    }
+    
+    if (!creator) {
+      return c.json({ success: false, error: 'Missing required field: creator' }, 400);
+    }
+    
+    if (!signature || !timestamp) {
+      return c.json({ success: false, error: 'Missing required fields: signature, timestamp. Sign the message to prove wallet ownership.' }, 400);
+    }
+    
+    // Verify the signature
+    const isValid = verifySignature(tokenAddress, timestamp, signature, creator);
+    
+    if (!isValid) {
+      return c.json({ 
+        success: false, 
+        error: 'Invalid signature or expired timestamp. Sign this message: ' + getSignMessage(tokenAddress, timestamp)
+      }, 401);
+    }
+    
+    // Check if agent already exists
+    const existing = await agents.getByToken(tokenAddress);
+    if (existing) {
+      return c.json({ success: false, error: 'Agent already registered' }, 409);
     }
     
     const agent = await agents.register({
@@ -57,13 +81,35 @@ app.post('/agents/register', async (c) => {
       symbol,
       description: description || '',
       creator,
-      chainId: chainId || 8453
+      chainId: chainId || 8453,
+      imageIpfs,
+      imageUrl
     });
     
+    console.log(`✓ Agent registered: ${name} (${symbol}) by ${creator}`);
     return c.json({ success: true, agent });
   } catch (error) {
     return c.json({ success: false, error: String(error) }, 500);
   }
+});
+
+// Get the message format for signing (useful for clients)
+app.get('/agents/sign-message', (c) => {
+  const tokenAddress = c.req.query('tokenAddress');
+  const timestamp = Date.now();
+  
+  if (!tokenAddress) {
+    return c.json({ success: false, error: 'tokenAddress query param required' }, 400);
+  }
+  
+  const message = getSignMessage(tokenAddress, timestamp);
+  
+  return c.json({
+    success: true,
+    message,
+    timestamp,
+    instructions: 'Sign this message with your wallet, then POST to /agents/register with the signature'
+  });
 });
 
 // Price routes
@@ -88,11 +134,52 @@ app.get('/price', async (c) => {
 app.post('/trades', async (c) => {
   try {
     const body = await c.req.json();
-    const trade = await trades.record(body);
-    return c.json({ success: true, trade });
+    const { transactionHash, trader, signature, ...rest } = body;
+    
+    if (!transactionHash || !trader) {
+      return c.json({ success: false, error: 'Missing required fields: transactionHash, trader' }, 400);
+    }
+    
+    // Signature verification is optional but recommended
+    // Without signature, trade is recorded but marked as unverified
+    let verified = false;
+    if (signature) {
+      verified = verifyTradeSignature(transactionHash, trader, signature);
+      if (!verified) {
+        return c.json({ 
+          success: false, 
+          error: 'Invalid signature. Sign this message: ' + getTradeSignMessage(transactionHash)
+        }, 401);
+      }
+    }
+    
+    const trade = await trades.record({
+      transactionHash,
+      trader,
+      ...rest,
+      signature: verified ? signature : undefined
+    });
+    
+    console.log(`${verified ? '✓' : '○'} Trade logged: ${rest.side} ${rest.tokenAddress?.slice(0, 10)}... by ${trader.slice(0, 10)}...`);
+    return c.json({ success: true, trade, verified });
   } catch (error) {
     return c.json({ success: false, error: String(error) }, 500);
   }
+});
+
+// Get the message format for signing trades
+app.get('/trades/sign-message', (c) => {
+  const transactionHash = c.req.query('txHash');
+  
+  if (!transactionHash) {
+    return c.json({ success: false, error: 'txHash query param required' }, 400);
+  }
+  
+  return c.json({
+    success: true,
+    message: getTradeSignMessage(transactionHash),
+    instructions: 'Sign this message to verify your trade ownership'
+  });
 });
 
 app.get('/trades', async (c) => {

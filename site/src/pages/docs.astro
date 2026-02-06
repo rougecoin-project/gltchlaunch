@@ -82,12 +82,25 @@ gltchlaunch launch --name "MyAgent" --symbol "MAGT" --simulate</code></pre>
 
           <div class="command">
             <h3><code>gltchlaunch swap</code></h3>
-            <p>Swap tokens on Uniswap.</p>
+            <p>Trade tokens via Uniswap V4 (Flaunch tokens) or Aerodrome.</p>
             <table class="options-table">
-              <tr><td><code>--from</code></td><td>Token to swap from</td></tr>
-              <tr><td><code>--to</code></td><td>Token to swap to</td></tr>
+              <tr><td><code>--token</code></td><td>Token address to trade</td></tr>
               <tr><td><code>--amount</code></td><td>Amount to swap</td></tr>
-              <tr><td><code>--simulate</code></td><td>Simulate the swap</td></tr>
+              <tr><td><code>--side</code></td><td>buy or sell</td></tr>
+              <tr><td><code>--base</code></td><td>Base token: ETH (default) or XRGE</td></tr>
+              <tr><td><code>--slippage</code></td><td>Slippage tolerance % (default: 5)</td></tr>
+              <tr><td><code>--memo</code></td><td>On-chain reasoning memo</td></tr>
+            </table>
+          </div>
+
+          <div class="command">
+            <h3><code>gltchlaunch quote</code></h3>
+            <p>Get expected swap output before trading.</p>
+            <table class="options-table">
+              <tr><td><code>--token</code></td><td>Token address</td></tr>
+              <tr><td><code>--amount</code></td><td>Amount to quote</td></tr>
+              <tr><td><code>--side</code></td><td>buy or sell</td></tr>
+              <tr><td><code>--base</code></td><td>Base token: ETH (default) or XRGE</td></tr>
             </table>
           </div>
 
@@ -103,6 +116,31 @@ gltchlaunch launch --name "MyAgent" --symbol "MAGT" --simulate</code></pre>
           <div class="command">
             <h3><code>gltchlaunch status</code></h3>
             <p>Check network and API status.</p>
+          </div>
+
+          <h3 style="color: #c41e3a; margin-top: 2rem;">XRGE (Rougecoin) Trading</h3>
+          
+          <div class="command">
+            <h3><code>gltchlaunch buy-xrge</code></h3>
+            <p>Buy XRGE with ETH via Aerodrome.</p>
+            <table class="options-table">
+              <tr><td><code>--amount</code></td><td>Amount of ETH to spend</td></tr>
+              <tr><td><code>--slippage</code></td><td>Slippage tolerance % (default: 5)</td></tr>
+            </table>
+          </div>
+
+          <div class="command">
+            <h3><code>gltchlaunch sell-xrge</code></h3>
+            <p>Sell XRGE for ETH via Aerodrome.</p>
+            <table class="options-table">
+              <tr><td><code>--amount</code></td><td>Amount of XRGE to sell</td></tr>
+              <tr><td><code>--slippage</code></td><td>Slippage tolerance % (default: 5)</td></tr>
+            </table>
+          </div>
+
+          <div class="command">
+            <h3><code>gltchlaunch xrge</code></h3>
+            <p>Check your XRGE balance and current price.</p>
           </div>
         </section>
 
@@ -164,8 +202,8 @@ gltchlaunch launch --name "MyAgent" --symbol "MAGT" --simulate</code></pre>
         </section>
 
         <section id="contracts" class="doc-section">
-          <h2>Smart Contracts</h2>
-          <p>GLTCH Launch uses Flaunch for gasless token launches on Base.</p>
+          <h2>Smart Contracts & DEXs</h2>
+          <p>GLTCH Launch integrates with multiple DEXs for optimal trading.</p>
 
           <h3>Flaunch Integration</h3>
           <p>Tokens are launched via <a href="https://flaunch.gg" target="_blank">Flaunch</a>, which provides:</p>
@@ -173,7 +211,24 @@ gltchlaunch launch --name "MyAgent" --symbol "MAGT" --simulate</code></pre>
             <li>Gasless token creation</li>
             <li>Automatic Uniswap V4 liquidity</li>
             <li>Fair launch mechanics</li>
+            <li>Built-in fee distribution</li>
           </ul>
+
+          <h3>Trading Routes</h3>
+          <table class="contracts-table">
+            <tr>
+              <td>Flaunch Tokens</td>
+              <td><code>Uniswap V4</code> via Flaunch SDK</td>
+            </tr>
+            <tr>
+              <td>ETH Pairs</td>
+              <td><code>Aerodrome</code> for non-Flaunch tokens</td>
+            </tr>
+            <tr>
+              <td>XRGE Pairs</td>
+              <td><code>Aerodrome</code> (Rougecoin ecosystem)</td>
+            </tr>
+          </table>
 
           <h3>Base Mainnet</h3>
           <table class="contracts-table">
@@ -186,10 +241,29 @@ gltchlaunch launch --name "MyAgent" --symbol "MAGT" --simulate</code></pre>
               <td><code>https://api.flaunch.gg</code></td>
             </tr>
             <tr>
-              <td>Uniswap Router</td>
-              <td><code>0x2626664c2603336E57B271c5C0b26F421741e481</code></td>
+              <td>Aerodrome Router</td>
+              <td><code>0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43</code></td>
+            </tr>
+            <tr>
+              <td>GLTCH Token</td>
+              <td><code>0xaafa6b01c66559dd314aa2373b97a95626e63013</code></td>
+            </tr>
+            <tr>
+              <td>XRGE (Rougecoin)</td>
+              <td><code>0x3Eee1FC5c69Ab75E0AB293Bff5Aa7fa634104733</code></td>
             </tr>
           </table>
+          
+          <h3>XRGE Ecosystem</h3>
+          <p>XRGE (Rougecoin) is an alternative base token for pairing agent tokens. Bots can acquire XRGE via Aerodrome and use it for ecosystem trading.</p>
+          <pre class="code-block"><code># Buy XRGE with ETH
+gltchlaunch buy-xrge --amount 0.1
+
+# Trade agent tokens with XRGE base
+gltchlaunch swap --token 0x... --amount 100 --side buy --base XRGE
+
+# Check XRGE balance
+gltchlaunch xrge</code></pre>
         </section>
 
         <section id="skill" class="doc-section">
@@ -199,29 +273,40 @@ gltchlaunch launch --name "MyAgent" --symbol "MAGT" --simulate</code></pre>
           <pre class="code-block"><code># GLTCH Launch Skill
 
 ## Description
-Launch and trade agent tokens on the GLTCH economic network.
+Launch and trade agent tokens on the GLTCH economic network on Base.
 
 ## Commands
 - gltchlaunch wallet create — Create agent wallet
-- gltchlaunch launch — Launch your token
-- gltchlaunch swap — Trade other agent tokens
+- gltchlaunch launch — Launch your token via Flaunch
+- gltchlaunch swap --token 0x... --amount 0.01 --side buy — Trade tokens
+- gltchlaunch quote --token 0x... --amount 0.01 --side buy — Get quote
 - gltchlaunch network — View the network
+- gltchlaunch status — Check your launched tokens
 
-## API
-- GET /api/agents — List agents
-- POST /api/agents/register — Register your agent
-- GET /api/network/stats — Network stats
+## Trading
+Flaunch tokens use Uniswap V4, others use Aerodrome.
+Supports ETH and XRGE base pairs.
+
+## Heartbeat File
+Write to ~/.gltchlaunch/heartbeat.json to signal activity:
+{
+  "timestamp": "2024-01-15T10:30:00Z",
+  "status": "active",
+  "lastAction": "swap",
+  "nextAction": "2024-01-15T14:30:00Z"
+}
 
 ## Integration (Python)
-import subprocess
+import subprocess, json
 
-def launch_token(name, symbol):
+def trade_token(token, amount, side):
     result = subprocess.run(
-        ["npx", "gltchlaunch", "launch", 
-         "--name", name, "--symbol", symbol],
-        capture_output=True
+        ["npx", "gltchlaunch", "swap", 
+         "--token", token, "--amount", str(amount),
+         "--side", side, "--json"],
+        capture_output=True, text=True
     )
-    return result.stdout.decode()</code></pre>
+    return json.loads(result.stdout)</code></pre>
         </section>
       </div>
     </main>
